@@ -70,19 +70,21 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         style={{ left: `${mousePos.x}px`, top: `${mousePos.y}px` }}
       />
 
-      {/* 1. Luxury Editorial Navbar with Staggered Entrance */}
-      <header className="sticky top-0 z-40 bg-sand-100/85 backdrop-blur-md border-b border-sand-300/80 px-6 md:px-12 py-4 transition-all duration-300 animate-nav-entrance">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="group cursor-pointer">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-sand-600 block group-hover:text-accent-gold transition-colors">
-                Palace &bull; Private Retreat
-              </span>
-              <span className="text-xl sm:text-2xl font-serif tracking-wider font-semibold text-noir-950 uppercase">
+      {/* 1. Luxury Editorial Navbar - Single Line */}
+      <header className="sticky top-0 z-40 bg-sand-100/90 backdrop-blur-md border-b border-sand-300/80 px-4 sm:px-8 lg:px-12 py-3 transition-all duration-300">
+        <div className="max-w-7xl mx-auto flex items-center justify-between flex-nowrap gap-4">
+          <div className="flex items-center gap-6 lg:gap-8 flex-nowrap shrink-0">
+            <a href="#" className="flex items-center gap-3 shrink-0 group">
+              <img 
+                src="/logo.svg" 
+                alt="The Grand Girvan Palace" 
+                className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105" 
+              />
+              <span className="text-base sm:text-lg font-serif tracking-wide font-semibold text-noir-950 uppercase whitespace-nowrap">
                 The Grand Girvan Palace
               </span>
-            </div>
-            <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-widest text-sand-800">
+            </a>
+            <nav className="hidden xl:flex items-center gap-6 text-xs uppercase tracking-widest text-sand-800 whitespace-nowrap">
               <a href="#destinations" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
                 The Hotel
               </a>
@@ -98,9 +100,9 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 shrink-0 flex-nowrap whitespace-nowrap">
             {currentGuest ? (
-              <div className="flex items-center gap-3 bg-sand-50/90 border border-sand-300 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-shadow">
+              <div className="flex items-center gap-2.5 bg-sand-50/90 border border-sand-300 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-shadow">
                 <img
                   src={currentGuest.Avatar}
                   alt={currentGuest.First_Name}
@@ -123,16 +125,16 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap">
                 <button
                   onClick={() => onOpenAuth('login')}
-                  className="text-xs uppercase tracking-wider font-semibold text-noir-900 hover:text-accent-gold transition-colors px-2 py-1"
+                  className="text-xs uppercase tracking-wider font-semibold text-noir-900 hover:text-accent-gold transition-colors px-2 py-1 whitespace-nowrap"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => onOpenAuth('register')}
-                  className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95 hover:shadow-lg"
+                  className="px-3 sm:px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95 hover:shadow-lg whitespace-nowrap"
                 >
                   Join Palace Club
                 </button>
@@ -144,9 +146,9 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 const el = document.getElementById('booking-bar');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hidden lg:block px-5 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all hover:scale-105 active:scale-95"
+              className="hidden sm:inline-flex items-center px-4 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
             >
-              Book Your Stay
+              Book Stay
             </button>
           </div>
         </div>
@@ -357,7 +359,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                     </div>
                     <div className="text-right">
                       <div className="text-2xl sm:text-3xl font-serif font-semibold text-noir-950">
-                        &euro;{room.Rate}
+                        ₹{room.Rate.toLocaleString()}
                       </div>
                       <div className="text-[10px] uppercase tracking-wider text-sand-600">Per Night</div>
                     </div>
@@ -411,7 +413,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                   <div className="text-xs text-sand-600">{selectedRoom.Specs}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-serif font-semibold text-noir-950">&euro;{selectedRoom.Rate * 4}</div>
+                  <div className="text-xl font-serif font-semibold text-noir-950">₹{(selectedRoom.Rate * 4).toLocaleString()}</div>
                   <div className="text-[10px] text-sand-600">4 Nights Total</div>
                 </div>
               </div>

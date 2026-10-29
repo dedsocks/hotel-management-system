@@ -132,7 +132,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
             <span className="text-xs font-semibold tracking-wider uppercase">Daily On-Site Revenue</span>
             <CreditCard className="w-4 h-4 text-accent-gold" />
           </div>
-          <div className="text-3xl font-serif text-noir-900 font-normal">&euro;9,380</div>
+          <div className="text-3xl font-serif text-noir-900 font-normal">₹8,45,000</div>
           <div className="text-xs text-sand-600 mt-2 flex items-center justify-between">
             <span>Rooms &amp; Spa &amp; Dining</span>
             <span className="text-emerald-700 font-medium">+14% vs avg</span>
@@ -198,7 +198,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
                       </span>
                     </td>
                     <td className="py-3.5 text-right pr-2 font-medium text-noir-900">
-                      &euro;{res.Total_Amount.toLocaleString()}
+                      ₹{res.Total_Amount.toLocaleString()}
                     </td>
                   </tr>
                 ))}
@@ -246,7 +246,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
                     <div className="p-2.5">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-noir-900">Suite {room.Room_Number}</span>
-                        <span className="text-[11px] font-medium text-sand-700">&euro;{room.Rate}</span>
+                        <span className="text-[11px] font-medium text-sand-700">₹{room.Rate.toLocaleString()}</span>
                       </div>
                       <div className="text-[11px] text-sand-600 truncate">{room.TypeName}</div>
                       <div className="text-[9px] text-sand-500 truncate mt-0.5">{room.Specs}</div>

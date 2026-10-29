@@ -110,7 +110,7 @@ export const INITIAL_ROOMS = [
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-sig', 
     TypeName: 'Signature Room', 
-    Rate: 420, 
+    Rate: 18500, 
     Housekeeping_Status: 'Clean', 
     Occupant: 'Alexander Wright', 
     Status: 'Occupied',
@@ -123,7 +123,7 @@ export const INITIAL_ROOMS = [
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-dlx', 
     TypeName: 'Deluxe Room', 
-    Rate: 520, 
+    Rate: 24500, 
     Housekeeping_Status: 'Cleaning In Progress', 
     Occupant: null, 
     Status: 'Available',
@@ -136,7 +136,7 @@ export const INITIAL_ROOMS = [
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-ter', 
     TypeName: 'Terrace Suite', 
-    Rate: 680, 
+    Rate: 36000, 
     Housekeeping_Status: 'Inspected', 
     Occupant: 'Camilla Laurent', 
     Status: 'Occupied',
@@ -148,21 +148,21 @@ export const INITIAL_ROOMS = [
     Room_Number: '301', 
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-mai', 
-    TypeName: 'Maison Suite', 
-    Rate: 940, 
+    TypeName: 'Palace Suite', 
+    Rate: 52000, 
     Housekeeping_Status: 'Dirty', 
     Occupant: null, 
     Status: 'Available',
     Image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=800',
-    Specs: '85 m² • Panoramic Lounge • Butler Service'
+    Specs: '85 m² • Panoramic Lounge • Royal Butler Service'
   },
   { 
     Room_ID: 'rm-401', 
     Room_Number: '401', 
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-res', 
-    TypeName: 'Residence Suite', 
-    Rate: 1180, 
+    TypeName: 'Royal Residence Suite', 
+    Rate: 85000, 
     Housekeeping_Status: 'Clean', 
     Occupant: null, 
     Status: 'Reserved',
@@ -174,13 +174,13 @@ export const INITIAL_ROOMS = [
     Room_Number: '402', 
     Branch_ID: 'b-01', 
     RoomType_ID: 'rt-res', 
-    TypeName: 'Residence Suite', 
-    Rate: 1180, 
+    TypeName: 'Royal Residence Suite', 
+    Rate: 85000, 
     Housekeeping_Status: 'Clean', 
     Occupant: 'Lord Sterling', 
     Status: 'Occupied',
     Image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
-    Specs: '120 m² • Sunset Vista • Fireplace'
+    Specs: '120 m² • Sunset Vista • Royal Fireplace'
   }
 ];
 
@@ -197,7 +197,7 @@ export const INITIAL_RESERVATIONS = [
     Actual_Check_In: '2026-10-28 14:15',
     Actual_Check_Out: null,
     Booking_Status: 'Checked-In',
-    Total_Amount: 1260
+    Total_Amount: 55500
   },
   {
     Reservation_ID: 'res-8842',
@@ -211,7 +211,7 @@ export const INITIAL_RESERVATIONS = [
     Actual_Check_In: '2026-10-29 11:30',
     Actual_Check_Out: null,
     Booking_Status: 'Checked-In',
-    Total_Amount: 3400
+    Total_Amount: 180000
   },
   {
     Reservation_ID: 'res-8843',
@@ -219,13 +219,13 @@ export const INITIAL_RESERVATIONS = [
     Guest_Name: 'Marcus Vance',
     Room_ID: 'rm-401',
     Room_Number: '401',
-    Room_Type: 'Residence Suite',
+    Room_Type: 'Royal Residence Suite',
     Check_In_Date: '2026-11-01',
     Check_Out_Date: '2026-11-05',
     Actual_Check_In: null,
     Actual_Check_Out: null,
     Booking_Status: 'Confirmed',
-    Total_Amount: 4720
+    Total_Amount: 340000
   }
 ];
 
