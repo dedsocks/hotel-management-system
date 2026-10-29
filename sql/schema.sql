@@ -139,9 +139,11 @@ CREATE TABLE Guest (
     First_Name VARCHAR(50) NOT NULL,
     Last_Name VARCHAR(50) NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
+    Password_Hash VARCHAR(255) NOT NULL,
     Phone VARCHAR(20) NOT NULL,
-    Loyalty_Points INT NOT NULL DEFAULT 0 CHECK (Loyalty_Points >= 0),
+    Loyalty_Points INT NOT NULL DEFAULT 100 CHECK (Loyalty_Points >= 0),
     Loyalty_Tier VARCHAR(50) NOT NULL DEFAULT 'Bronze',
+    Account_Status VARCHAR(50) NOT NULL DEFAULT 'Active',
     Special_Requests TEXT,
     Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

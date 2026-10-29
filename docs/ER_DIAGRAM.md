@@ -86,9 +86,11 @@ erDiagram
         VARCHAR(50) First_Name
         VARCHAR(50) Last_Name
         VARCHAR(100) Email UK
+        VARCHAR(255) Password_Hash
         VARCHAR(20) Phone
         INT Loyalty_Points
         VARCHAR(50) Loyalty_Tier
+        VARCHAR(50) Account_Status
         TEXT Special_Requests
     }
     Reservations {
