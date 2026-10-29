@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { INITIAL_BRANCHES, INITIAL_ROOMS } from '../data/mockData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import CustomSelect from './CustomSelect';
+import LuxuryDatePicker from './LuxuryDatePicker';
 import { 
   Users, 
   Sparkles, 
@@ -219,26 +220,19 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 }))}
               />
 
-              {/* Date Pickers */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-white border border-sand-300 rounded-xl hover:border-noir-900 transition-colors">
-                  <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Check In</span>
-                  <input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1 cursor-pointer"
-                  />
-                </div>
-                <div className="p-3 bg-white border border-sand-300 rounded-xl hover:border-noir-900 transition-colors">
-                  <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Check Out</span>
-                  <input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1 cursor-pointer"
-                  />
-                </div>
+              {/* Custom Luxury Date Picker (Matching user reference layout) */}
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1.5">
+                  Stay Schedule
+                </label>
+                <LuxuryDatePicker
+                  checkInDate={checkIn}
+                  checkOutDate={checkOut}
+                  onDatesChange={(inDate, outDate) => {
+                    setCheckIn(inDate);
+                    if (outDate) setCheckOut(outDate);
+                  }}
+                />
               </div>
 
               {/* Guests */}
