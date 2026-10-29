@@ -73,18 +73,18 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       {/* 1. Luxury Editorial Navbar - Single Line */}
       <header className="sticky top-0 z-40 bg-sand-100/90 backdrop-blur-md border-b border-sand-300/80 px-4 sm:px-8 lg:px-12 py-3 transition-all duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between flex-nowrap gap-4">
-          <div className="flex items-center gap-6 lg:gap-8 flex-nowrap shrink-0">
-            <a href="#" className="flex items-center gap-3 shrink-0 group">
+          <div className="flex items-center gap-4 lg:gap-8 flex-nowrap shrink-0">
+            <a href="#" className="flex items-center gap-2.5 shrink-0 group">
               <img 
                 src="/logo.svg" 
                 alt="The Grand Girvan Palace" 
-                className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105" 
+                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
               />
-              <span className="text-base sm:text-lg font-serif tracking-wide font-semibold text-noir-950 uppercase whitespace-nowrap">
+              <span className="text-sm sm:text-base lg:text-lg font-serif tracking-wide font-semibold text-noir-950 uppercase whitespace-nowrap">
                 The Grand Girvan Palace
               </span>
             </a>
-            <nav className="hidden xl:flex items-center gap-6 text-xs uppercase tracking-widest text-sand-800 whitespace-nowrap">
+            <nav className="hidden md:flex items-center gap-3.5 lg:gap-6 text-[11px] lg:text-xs uppercase tracking-widest text-sand-800 whitespace-nowrap">
               <a href="#destinations" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
                 The Hotel
               </a>
