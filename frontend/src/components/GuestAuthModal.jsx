@@ -5,6 +5,7 @@ import { X, Mail, Lock, User, Phone, Award, ArrowRight } from 'lucide-react';
 export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' }) {
   // activeTab: 0 = Sign In, 1 = Register
   const [activeTab, setActiveTab] = useState(initialMode === 'register' ? 1 : 0);
+  const [isClosing, setIsClosing] = useState(false);
   const { loginGuest, registerGuest } = useAuth();
 
   // Login form state
@@ -23,7 +24,16 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
   useEffect(() => {
     setActiveTab(initialMode === 'register' ? 1 : 0);
     setError('');
+    setIsClosing(false);
   }, [initialMode, isOpen]);
+
+  const handleAnimatedClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 280);
+  };
 
   if (!isOpen) return null;
 
@@ -32,7 +42,7 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
     setError('');
     const res = loginGuest(loginEmail, loginPassword);
     if (res.success) {
-      onClose();
+      handleAnimatedClose();
     } else {
       setError(res.error);
     }
@@ -53,23 +63,33 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
       password: regPassword
     });
     if (res.success) {
-      onClose();
+      handleAnimatedClose();
     } else {
       setError(res.error);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 animate-modal-backdrop">
+    <div 
+      onClick={handleAnimatedClose}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 ${
+        isClosing ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'
+      }`}
+    >
       {/* 
         Fixed-Dimension Card:
         The outer shell NEVER resizes. It remains rock-solid in dimension,
         eliminating all jump cuts and awkward layout shifts.
       */}
-      <div className="relative w-full max-w-[460px] bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-7 md:p-8 overflow-hidden animate-modal-card">
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full max-w-[460px] bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-7 md:p-8 overflow-hidden ${
+          isClosing ? 'animate-modal-card-out' : 'animate-modal-card'
+        }`}
+      >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleAnimatedClose}
           className="absolute top-5 right-5 p-2 rounded-full text-sand-600 hover:text-noir-950 hover:bg-sand-200 transition-colors z-20"
         >
           <X className="w-4 h-4" />
