@@ -68,8 +68,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         style={{ left: `${mousePos.x}px`, top: `${mousePos.y}px` }}
       />
 
-      {/* 1. Luxury Editorial Navbar with Glassmorphic Blur */}
-      <header className="sticky top-0 z-40 bg-sand-100/85 backdrop-blur-md border-b border-sand-300/80 px-6 md:px-12 py-4 transition-all duration-300">
+      {/* 1. Luxury Editorial Navbar with Staggered Entrance */}
+      <header className="sticky top-0 z-40 bg-sand-100/85 backdrop-blur-md border-b border-sand-300/80 px-6 md:px-12 py-4 transition-all duration-300 animate-nav-entrance">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="group cursor-pointer">
@@ -162,23 +162,23 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         <div className="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/40 to-noir-950/20" />
 
         <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-4">
-          {/* Hero Typographic Manifesto */}
+          {/* Hero Typographic Manifesto with Staggered Entrance */}
           <div className="lg:col-span-7 space-y-6 text-sand-50">
-            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-sand-300">
+            <div className="animate-hero-badge inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-sand-300">
               <span className="w-8 h-[1px] bg-sand-300" />
               <span>{selectedBranch.Location_Name}</span>
             </div>
             
-            <h1 className="text-5xl sm:text-7xl xl:text-8xl font-serif font-normal leading-[1.02] tracking-tight">
+            <h1 className="animate-hero-title text-5xl sm:text-7xl xl:text-8xl font-serif font-normal leading-[1.02] tracking-tight">
               The world <br />
               <span className="italic font-light hover:text-accent-gold transition-colors duration-500">can wait.</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-sand-200/90 max-w-md font-light leading-relaxed">
+            <p className="animate-hero-desc text-sm sm:text-base text-sand-200/90 max-w-md font-light leading-relaxed">
               A sanctuary to step away. And feel entirely yourself amidst secluded Mediterranean waters and private terraced suites.
             </p>
 
-            <div className="pt-2">
+            <div className="animate-hero-desc pt-2">
               <a
                 href="#destinations"
                 className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-sand-200 hover:text-white border-b border-sand-400 pb-1 transition-all hover:gap-3"
@@ -188,10 +188,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
             </div>
           </div>
 
-          {/* Right Floating Reservation Widget with Subtle Float & Micro-interactions */}
+          {/* Right Floating Reservation Widget with Staggered Smooth Entrance */}
           <div 
             id="booking-bar" 
-            className="lg:col-span-5 bg-sand-50/95 backdrop-blur-xl rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10"
+            className="animate-hero-widget lg:col-span-5 bg-sand-50/95 backdrop-blur-xl rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10"
           >
             <div className="flex items-center justify-between pb-4 border-b border-sand-300">
               <div>

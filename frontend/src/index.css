@@ -32,9 +32,51 @@
 }
 
 /* =========================================================================
-   LUXURY MOTION & SCROLL-DRIVEN ANIMATIONS
+   LUXURY MOTION & STAGGERED PAGE ENTRANCE
    Compositor-only transforms & opacity, with graceful fallback
    ========================================================================= */
+
+@keyframes pageEntranceFade {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-nav-entrance {
+  animation: navSlideDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.animate-hero-badge {
+  animation: pageEntranceFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.animate-hero-title {
+  animation: pageEntranceFade 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.animate-hero-desc {
+  animation: pageEntranceFade 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+
+.animate-hero-widget {
+  animation: pageEntranceFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
 
 @keyframes luxuryFadeUp {
   0% {
