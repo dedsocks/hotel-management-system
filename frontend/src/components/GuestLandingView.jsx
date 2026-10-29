@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { INITIAL_BRANCHES, INITIAL_ROOMS } from '../data/mockData';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { 
-  Calendar, 
   Users, 
-  ChevronDown, 
   Sparkles, 
-  ArrowRight, 
   ShieldCheck, 
   Award, 
   LogOut,
-  SlidersHorizontal,
+  Check,
   Compass,
-  Check
+  ArrowRight,
+  ChevronRight,
+  Wine,
+  Waves,
+  Sun,
+  Flame
 } from 'lucide-react';
 
 export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) {
@@ -24,6 +27,20 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  
+  // Ambient Mouse Glow Position
+  const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
+
+  // Scroll reveal container hook
+  const pageContainerRef = useScrollReveal();
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   const handleBookRoom = (room) => {
     setSelectedRoom(room);
@@ -44,28 +61,44 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   };
 
   return (
-    <div className="min-h-screen bg-sand-100 text-noir-900 selection:bg-noir-900 selection:text-sand-50">
-      {/* 1. Luxury Editorial Navbar */}
-      <header className="sticky top-0 z-40 bg-sand-100/90 backdrop-blur-md border-b border-sand-300/80 px-6 md:px-12 py-4">
+    <div ref={pageContainerRef} className="min-h-screen bg-sand-100 text-noir-900 selection:bg-noir-900 selection:text-sand-50 relative">
+      {/* Dynamic Ambient Cursor Glow */}
+      <div 
+        className="luxury-cursor-glow hidden md:block"
+        style={{ left: `${mousePos.x}px`, top: `${mousePos.y}px` }}
+      />
+
+      {/* 1. Luxury Editorial Navbar with Glassmorphic Blur */}
+      <header className="sticky top-0 z-40 bg-sand-100/85 backdrop-blur-md border-b border-sand-300/80 px-6 md:px-12 py-4 transition-all duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-sand-600 block">Hotel &bull; Private Retreat</span>
+            <div className="group cursor-pointer">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-sand-600 block group-hover:text-accent-gold transition-colors">
+                Hotel &bull; Private Retreat
+              </span>
               <span className="text-2xl font-serif tracking-wider font-semibold text-noir-950 uppercase">
                 Maison Velour
               </span>
             </div>
             <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-widest text-sand-800">
-              <a href="#destinations" className="hover:text-noir-950 transition-colors">The Hotel</a>
-              <a href="#rooms" className="hover:text-noir-950 transition-colors">Rooms &amp; Suites</a>
-              <a href="#experiences" className="hover:text-noir-950 transition-colors">Experiences</a>
-              <a href="#wellness" className="hover:text-noir-950 transition-colors">Spa &amp; Wellness</a>
+              <a href="#destinations" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
+                The Hotel
+              </a>
+              <a href="#rooms" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
+                Rooms &amp; Suites
+              </a>
+              <a href="#experiences" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
+                Experiences
+              </a>
+              <a href="#wellness" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
+                Spa &amp; Wellness
+              </a>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
             {currentGuest ? (
-              <div className="flex items-center gap-3 bg-sand-50 border border-sand-300 px-3 py-1.5 rounded-full shadow-sm">
+              <div className="flex items-center gap-3 bg-sand-50/90 border border-sand-300 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-shadow">
                 <img
                   src={currentGuest.Avatar}
                   alt={currentGuest.First_Name}
@@ -97,7 +130,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 </button>
                 <button
                   onClick={() => onOpenAuth('register')}
-                  className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95"
+                  className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95 hover:shadow-lg"
                 >
                   Join Maison Club
                 </button>
@@ -109,7 +142,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 const el = document.getElementById('booking-bar');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hidden lg:block px-5 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all"
+              className="hidden lg:block px-5 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all hover:scale-105 active:scale-95"
             >
               Book Your Stay
             </button>
@@ -117,17 +150,18 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         </div>
       </header>
 
-      {/* 2. Hero Section Matching User Reference Screenshot */}
-      <section className="relative min-h-[85vh] flex items-center justify-center px-6 md:px-12 py-12 bg-noir-950 overflow-hidden">
-        {/* Full Bleed Architecture Photograph */}
+      {/* 2. Hero Section with Cinematic Zoom & Dynamic Typography */}
+      <section className="relative min-h-[90vh] flex items-center justify-center px-6 md:px-12 py-16 bg-noir-950 overflow-hidden">
+        {/* Full Bleed Architecture Photograph with Slow Zoom */}
         <img
+          key={selectedBranch.Branch_ID}
           src={selectedBranch.Image}
           alt={selectedBranch.Location_Name}
-          className="absolute inset-0 w-full h-full object-cover opacity-65 scale-105 transition-transform duration-1000 ease-out"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 animate-hero-zoom filter brightness-95"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-noir-950/90 via-noir-950/40 to-noir-950/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/40 to-noir-950/20" />
 
-        <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-8">
+        <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-4">
           {/* Hero Typographic Manifesto */}
           <div className="lg:col-span-7 space-y-6 text-sand-50">
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-sand-300">
@@ -135,33 +169,36 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <span>{selectedBranch.Location_Name}</span>
             </div>
             
-            <h1 className="text-5xl sm:text-7xl xl:text-8xl font-serif font-normal leading-[1.05] tracking-tight">
+            <h1 className="text-5xl sm:text-7xl xl:text-8xl font-serif font-normal leading-[1.02] tracking-tight">
               The world <br />
-              <span className="italic font-light">can wait.</span>
+              <span className="italic font-light hover:text-accent-gold transition-colors duration-500">can wait.</span>
             </h1>
 
             <p className="text-sm sm:text-base text-sand-200/90 max-w-md font-light leading-relaxed">
-              A place to step away. And feel entirely yourself amidst private coastal terraces and secluded luxury.
+              A sanctuary to step away. And feel entirely yourself amidst secluded Mediterranean waters and private terraced suites.
             </p>
 
             <div className="pt-2">
               <a
                 href="#destinations"
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-sand-200 hover:text-white border-b border-sand-400 pb-1 transition-colors"
+                className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-sand-200 hover:text-white border-b border-sand-400 pb-1 transition-all hover:gap-3"
               >
                 Discover the Maison &darr;
               </a>
             </div>
           </div>
 
-          {/* Right Floating Reservation Widget (From Screenshot) */}
-          <div id="booking-bar" className="lg:col-span-5 bg-sand-50/95 backdrop-blur-md rounded-2xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900">
+          {/* Right Floating Reservation Widget with Subtle Float & Micro-interactions */}
+          <div 
+            id="booking-bar" 
+            className="lg:col-span-5 bg-sand-50/95 backdrop-blur-xl rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-sand-300">
               <div>
                 <span className="text-[10px] uppercase tracking-widest text-sand-600 font-semibold block">Make time for you</span>
                 <h3 className="text-2xl font-serif font-medium text-noir-950 mt-0.5">A stay to remember.</h3>
               </div>
-              <div className="w-8 h-8 rounded-full border border-sand-400 flex items-center justify-center font-serif text-sm">
+              <div className="w-9 h-9 rounded-full border border-sand-400 flex items-center justify-center font-serif text-sm bg-sand-100 shadow-inner">
                 M
               </div>
             </div>
@@ -178,7 +215,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                     const found = INITIAL_BRANCHES.find(b => b.Branch_ID === e.target.value);
                     if (found) setSelectedBranch(found);
                   }}
-                  className="w-full bg-white border border-sand-300 rounded-lg px-3 py-2 text-xs font-medium text-noir-900 focus:outline-none focus:border-noir-900"
+                  className="w-full bg-white border border-sand-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-noir-900 focus:outline-none focus:border-noir-900 transition-colors cursor-pointer"
                 >
                   {INITIAL_BRANCHES.map(b => (
                     <option key={b.Branch_ID} value={b.Branch_ID}>
@@ -190,28 +227,28 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
               {/* Date Pickers */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-white border border-sand-300 rounded-lg">
+                <div className="p-3 bg-white border border-sand-300 rounded-xl hover:border-noir-900 transition-colors">
                   <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Check In</span>
                   <input
                     type="date"
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1"
+                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1 cursor-pointer"
                   />
                 </div>
-                <div className="p-3 bg-white border border-sand-300 rounded-lg">
+                <div className="p-3 bg-white border border-sand-300 rounded-xl hover:border-noir-900 transition-colors">
                   <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Check Out</span>
                   <input
                     type="date"
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1"
+                    className="w-full text-xs font-semibold text-noir-900 bg-transparent focus:outline-none mt-1 cursor-pointer"
                   />
                 </div>
               </div>
 
               {/* Guests */}
-              <div className="p-3 bg-white border border-sand-300 rounded-lg flex items-center justify-between">
+              <div className="p-3 bg-white border border-sand-300 rounded-xl flex items-center justify-between hover:border-noir-900 transition-colors">
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Your Company</span>
                   <span className="text-xs font-semibold text-noir-900">{guestCount}</span>
@@ -219,16 +256,17 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 <Users className="w-4 h-4 text-sand-600" />
               </div>
 
-              {/* Find Room CTA Button */}
+              {/* Find Room CTA Button with Glow */}
               <button
                 onClick={() => {
                   const el = document.getElementById('rooms');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+                className="w-full py-3.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-xl active:scale-95 group"
               >
                 <span>Find Your Room</span>
                 <span className="text-[10px] opacity-75 font-normal">&bull; 4 Nights</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <div className="text-center text-[10px] text-sand-600 pt-1">
@@ -239,9 +277,57 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         </div>
       </section>
 
-      {/* 3. Rooms & Suites Catalog (Matching Screenshot 3 & 4) */}
+      {/* 3. Editorial Philosophy / Brand Story Section with Scroll Reveal */}
+      <section id="destinations" className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 space-y-6 reveal-on-scroll">
+            <span className="text-xs uppercase tracking-[0.3em] text-sand-600 font-semibold block">
+              01 / The Maison Philosophy
+            </span>
+            <h2 className="text-4xl sm:text-6xl font-serif text-noir-950 font-normal leading-tight">
+              Not just a change of scenery. <br />
+              <span className="italic">A change of pace.</span>
+            </h2>
+            <p className="text-sm text-sand-700 leading-relaxed max-w-lg">
+              The best places don’t ask you to be anyone else. They give you space to settle in, to switch off, and to follow the day wherever it takes you.
+            </p>
+            <div className="pt-2 flex items-center gap-8 text-xs text-sand-800">
+              <div className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-accent-gold" />
+                <span>Private Terraces</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Waves className="w-4 h-4 text-accent-gold" />
+                <span>Cove Waters</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Wine className="w-4 h-4 text-accent-gold" />
+                <span>Michelin Cellar</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 relative reveal-on-scroll">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-sand-300 group">
+              <img
+                src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=1200"
+                alt="Amalfi Coast Estate"
+                className="w-full h-[450px] object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-noir-950/70 via-transparent to-transparent flex items-end p-8 text-sand-50">
+                <div>
+                  <div className="text-xs uppercase tracking-widest text-sand-300">Positano &bull; Italy</div>
+                  <div className="text-2xl font-serif">Maison Velour Amalfi Coast</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Rooms & Suites Catalog with Staggered Scroll Reveal */}
       <section id="rooms" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12 pb-6 border-b border-sand-300">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12 pb-6 border-b border-sand-300 reveal-on-scroll">
           <div>
             <span className="text-xs uppercase tracking-[0.25em] text-sand-600 block mb-1">
               Curated Accommodations
@@ -255,19 +341,19 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           </p>
         </div>
 
-        <div className="space-y-6">
-          {INITIAL_ROOMS.map((room) => (
+        <div className="space-y-8">
+          {INITIAL_ROOMS.map((room, idx) => (
             <div
               key={room.Room_ID}
-              className="bg-sand-50 border border-sand-300/80 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 grid grid-cols-1 md:grid-cols-12 gap-0 group"
+              className="reveal-on-scroll bg-sand-50 border border-sand-300/80 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 grid grid-cols-1 md:grid-cols-12 gap-0 group hover:-translate-y-1"
             >
-              <div className="md:col-span-5 relative h-64 md:h-auto overflow-hidden bg-sand-200">
+              <div className="md:col-span-5 relative h-72 md:h-auto overflow-hidden bg-sand-200">
                 <img
                   src={room.Image}
                   alt={room.TypeName}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                 />
-                <span className="absolute top-4 left-4 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded bg-sand-50/90 backdrop-blur-md text-noir-900">
+                <span className="absolute top-4 left-4 text-[10px] font-semibold uppercase tracking-widest px-3 py-1 rounded-full bg-sand-50/90 backdrop-blur-md text-noir-900 border border-white/40 shadow-sm">
                   Suite {room.Room_Number}
                 </span>
               </div>
@@ -276,13 +362,13 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 <div>
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div>
-                      <h3 className="text-2xl font-serif text-noir-950 font-medium">
+                      <h3 className="text-2xl sm:text-3xl font-serif text-noir-950 font-medium group-hover:text-accent-bronze transition-colors">
                         {room.TypeName}
                       </h3>
-                      <p className="text-xs text-sand-600 mt-1">{room.Specs}</p>
+                      <p className="text-xs text-sand-600 mt-1 font-medium">{room.Specs}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-serif font-semibold text-noir-950">
+                      <div className="text-2xl sm:text-3xl font-serif font-semibold text-noir-950">
                         &euro;{room.Rate}
                       </div>
                       <div className="text-[10px] uppercase tracking-wider text-sand-600">Per Night</div>
@@ -290,7 +376,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                   </div>
 
                   <p className="text-xs text-sand-700 mt-3 leading-relaxed">
-                    Designed around natural light and travertine textures. Features king pillowtop bedding, high-speed Wi-Fi, Nespresso bar, and panoramic French windows.
+                    Designed around natural stone, travertine textures, and sunlight. Features signature king pillowtop bedding, high-speed Wi-Fi, Nespresso bar, and panoramic French windows.
                   </p>
                 </div>
 
@@ -306,9 +392,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
                   <button
                     onClick={() => handleBookRoom(room)}
-                    className="px-6 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-xs font-semibold uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                    className="px-6 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all shadow-sm hover:shadow-lg active:scale-95 flex items-center gap-2 group/btn"
                   >
-                    Select Room &rarr;
+                    <span>Select Room</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -317,7 +404,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         </div>
       </section>
 
-      {/* 4. Booking Preview Confirmation Modal */}
+      {/* 5. Booking Preview Confirmation Modal */}
       {isBookModalOpen && selectedRoom && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-xl bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 relative">
@@ -328,7 +415,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               Review details for {selectedBranch.Location_Name}.
             </p>
 
-            <div className="rounded-xl overflow-hidden border border-sand-300 mb-6">
+            <div className="rounded-2xl overflow-hidden border border-sand-300 mb-6 shadow-sm">
               <img src={selectedRoom.Image} alt={selectedRoom.TypeName} className="w-full h-48 object-cover" />
               <div className="p-4 bg-sand-100 flex items-center justify-between">
                 <div>
@@ -365,13 +452,13 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setIsBookModalOpen(false)}
-                  className="flex-1 py-2.5 border border-sand-300 text-noir-900 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
+                  className="flex-1 py-3 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmReservation}
-                  className="flex-1 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-md"
+                  className="flex-1 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95"
                 >
                   Confirm Reservation
                 </button>
@@ -381,8 +468,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         </div>
       )}
 
-      {/* 5. Editorial Footer with Discreet Staff Operations Link */}
-      <footer className="bg-sand-200 border-t border-sand-300 py-12 px-6 md:px-12 mt-20">
+      {/* 6. Editorial Footer with Discreet Staff Operations Link */}
+      <footer className="bg-sand-200/70 border-t border-sand-300 py-12 px-6 md:px-12 mt-20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-sand-700">
           <div>
             <span className="font-serif text-lg text-noir-950 font-medium block">MAISON VELOUR</span>
