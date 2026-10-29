@@ -125,16 +125,20 @@
 @keyframes modalPopOut {
   0% {
     opacity: 1;
-    transform: scale(1);
+    transform: scaleX(1) scaleY(1);
     filter: blur(0px);
   }
-  60% {
-    opacity: 0.8;
+  /* Stage 1: Card squishes vertically into a thin horizontal line in the center */
+  55% {
+    opacity: 0.95;
+    transform: scaleX(0.9) scaleY(0.005);
+    filter: blur(0px);
   }
+  /* Stage 2: The thin line compresses horizontally and vanishes */
   100% {
     opacity: 0;
-    transform: scale(0.65);
-    filter: blur(4px);
+    transform: scaleX(0) scaleY(0.005);
+    filter: blur(1px);
   }
 }
 
@@ -143,19 +147,19 @@
 }
 
 .animate-modal-backdrop-out {
-  animation: modalBackdropFadeOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modalBackdropFadeOut 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-modal-card {
   animation: modalPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: center center;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .animate-modal-card-out {
-  animation: modalPopOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modalPopOut 0.34s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   transform-origin: center center;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 @keyframes luxuryFadeIn {
