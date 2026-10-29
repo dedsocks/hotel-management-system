@@ -17,7 +17,7 @@ export default function StaffDirectoryView() {
             Hotel Staff &amp; Specializations
           </h1>
           <p className="text-sm text-sand-700 mt-0.5">
-            Database specialization tables: Receptionist, Manager, and Therapist linked to Staff PK.
+            Overview of on-duty staff, roles, and shift assignments across property departments.
           </p>
         </div>
 

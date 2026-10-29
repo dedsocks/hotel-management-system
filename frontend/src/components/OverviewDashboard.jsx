@@ -141,7 +141,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h2 className="text-xl font-serif text-noir-900 font-medium">Active &amp; Incoming Guests</h2>
-              <p className="text-xs text-sand-600 mt-0.5">Direct reservations tracked from schema</p>
+              <p className="text-xs text-sand-600 mt-0.5">Real-time room bookings and guest arrivals</p>
             </div>
             
             <div className="relative">

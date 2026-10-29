@@ -33,13 +33,13 @@ export default function LoginView() {
       {/* Brand Header */}
       <div className="text-center mb-8 relative z-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sand-400 bg-sand-50/80 text-sand-800 text-xs tracking-widest uppercase mb-4">
-          <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff Portal &amp; Management
+          <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff &amp; Operations
         </div>
         <h1 className="text-4xl md:text-5xl font-serif tracking-wide text-noir-950 font-normal uppercase">
           Maison Velour
         </h1>
         <p className="text-xs uppercase tracking-[0.3em] text-sand-600 mt-1">
-          Hotel &amp; Private Retreat &bull; DBMS Portal
+          Hotel &amp; Private Retreat
         </p>
       </div>
 
@@ -101,10 +101,10 @@ export default function LoginView() {
           </button>
         </form>
 
-        {/* Quick Demo Switcher */}
+        {/* Switch Account */}
         <div className="mt-8 pt-6 border-t border-sand-300">
           <p className="text-xs uppercase tracking-wider text-sand-600 font-semibold mb-3 flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" /> Quick Demo Role Switcher
+            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" /> Select Staff Account
           </p>
           <div className="grid grid-cols-1 gap-2">
             {INITIAL_STAFF.map((staff) => (
@@ -128,7 +128,7 @@ export default function LoginView() {
                   </div>
                 </div>
                 <span className="text-[11px] font-medium text-sand-600 group-hover:text-noir-900 transition-colors">
-                  Instant Login &rarr;
+                  Sign In &rarr;
                 </span>
               </button>
             ))}
@@ -137,7 +137,7 @@ export default function LoginView() {
       </div>
 
       <p className="mt-8 text-xs text-sand-600 tracking-wider">
-        Maison Velour Property Management System &bull; Database Schema v1.0
+        Maison Velour Property Management System
       </p>
     </div>
   );
