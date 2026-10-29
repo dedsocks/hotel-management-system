@@ -406,8 +406,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
       {/* 5. Booking Preview Confirmation Modal */}
       {isBookModalOpen && selectedRoom && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-xl bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 animate-modal-backdrop">
+          <div className="w-full max-w-xl bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 relative animate-modal-card">
             <h3 className="text-2xl font-serif text-noir-950 font-medium mb-1">
               Your stay, at a glance.
             </h3>

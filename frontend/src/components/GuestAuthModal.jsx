@@ -41,8 +41,8 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 animate-modal-backdrop">
+      <div className="relative w-full max-w-md bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 overflow-hidden animate-modal-card">
         {/* Close Button */}
         <button
           onClick={onClose}
