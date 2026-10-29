@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { INITIAL_STAFF } from '../data/mockData';
-import { Lock, Mail, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function LoginView() {
-  const { login, switchUser } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,12 +16,6 @@ export default function LoginView() {
     } else {
       setError('');
     }
-  };
-
-  const handleDemoSelect = (staff) => {
-    setEmail(staff.Email);
-    setPassword('••••••••');
-    switchUser(staff.Staff_ID);
   };
 
   return (
@@ -98,6 +91,16 @@ export default function LoginView() {
             </div>
           </div>
 
+          <div className="flex items-center justify-between text-xs text-sand-600 pt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded border-sand-300 text-noir-900 focus:ring-noir-900" />
+              <span>Remember this terminal</span>
+            </label>
+            <a href="#reset" onClick={(e) => { e.preventDefault(); alert('Please contact the IT Security Department for password reset.'); }} className="hover:text-noir-900 transition-colors">
+              Forgot password?
+            </a>
+          </div>
+
           <button
             type="submit"
             className="w-full mt-2 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 font-medium rounded-lg text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-[0.99]"
@@ -105,44 +108,10 @@ export default function LoginView() {
             Authenticate Staff <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        {/* Switch Account */}
-        <div className="mt-8 pt-6 border-t border-sand-300">
-          <p className="text-xs uppercase tracking-wider text-sand-600 font-semibold mb-3 flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" /> Select Staff Account
-          </p>
-          <div className="grid grid-cols-1 gap-2">
-            {INITIAL_STAFF.map((staff) => (
-              <button
-                key={staff.Staff_ID}
-                type="button"
-                onClick={() => handleDemoSelect(staff)}
-                className="w-full text-left p-2.5 rounded-lg border border-sand-300/70 hover:border-noir-900 bg-sand-100/60 hover:bg-sand-200/70 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={staff.Avatar}
-                    alt={staff.First_Name}
-                    className="w-8 h-8 rounded-full object-cover border border-sand-400"
-                  />
-                  <div>
-                    <div className="text-xs font-semibold text-noir-900">
-                      {staff.First_Name} {staff.Last_Name}
-                    </div>
-                    <div className="text-[11px] text-sand-700">{staff.Role}</div>
-                  </div>
-                </div>
-                <span className="text-[11px] font-medium text-sand-600 group-hover:text-noir-900 transition-colors">
-                  Sign In &rarr;
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
-      <p className="mt-8 text-xs text-sand-600 tracking-wider">
-        Maison Velour Property Management System
+      <p className="mt-8 text-xs text-sand-300/80 tracking-wider">
+        Maison Velour Property Management System &bull; Restricted Access
       </p>
     </div>
   );
