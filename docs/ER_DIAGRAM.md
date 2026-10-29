@@ -4,11 +4,6 @@ This document describes the Entity-Relationship (ER) model and schema design for
 
 ## Entity Relationship Diagram
 
-![Hotel Management System ER Diagram](./er_diagram.svg)
-
-<details>
-<summary><b>Click to expand Mermaid source code</b></summary>
-
 ```mermaid
 erDiagram
     %% Authentication & Staff Management
@@ -207,7 +202,6 @@ erDiagram
         VARCHAR(50) Payment_Status
     }
 ```
-</details>
 
 ## Schema Overview
 
