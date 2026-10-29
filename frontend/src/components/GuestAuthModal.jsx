@@ -32,7 +32,7 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
     setTimeout(() => {
       onClose();
       setIsClosing(false);
-    }, 340);
+    }, 200);
   };
 
   if (!isOpen) return null;
