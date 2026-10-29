@@ -32,11 +32,11 @@ export default function Sidebar({ currentTab, onSelectTab, onExitToPublic }) {
             <span className="w-2.5 h-2.5 rounded-full bg-accent-gold inline-block animate-pulse"></span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-sand-700 font-semibold">Resort Ops</span>
           </div>
-          <h2 className="text-xl font-serif tracking-wider font-semibold text-noir-900 uppercase">
-            Maison Velour
+          <h2 className="text-lg font-serif tracking-wider font-semibold text-noir-900 uppercase">
+            The Grand Girvan Palace
           </h2>
           <p className="text-[11px] text-sand-600 tracking-wide mt-0.5">
-            Cote d'Azur Retreat
+            Ayrshire Coast Estate
           </p>
         </div>
 

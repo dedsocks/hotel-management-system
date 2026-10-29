@@ -75,10 +75,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           <div className="flex items-center gap-8">
             <div className="group cursor-pointer">
               <span className="text-[10px] tracking-[0.3em] uppercase text-sand-600 block group-hover:text-accent-gold transition-colors">
-                Hotel &bull; Private Retreat
+                Palace &bull; Private Retreat
               </span>
-              <span className="text-2xl font-serif tracking-wider font-semibold text-noir-950 uppercase">
-                Maison Velour
+              <span className="text-xl sm:text-2xl font-serif tracking-wider font-semibold text-noir-950 uppercase">
+                The Grand Girvan Palace
               </span>
             </div>
             <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-widest text-sand-800">
@@ -133,7 +133,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                   onClick={() => onOpenAuth('register')}
                   className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95 hover:shadow-lg"
                 >
-                  Join Maison Club
+                  Join Palace Club
                 </button>
               </div>
             )}
@@ -176,7 +176,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
             </h1>
 
             <p className="animate-hero-desc text-sm sm:text-base text-sand-200/90 max-w-md font-light leading-relaxed">
-              A sanctuary to step away. And feel entirely yourself amidst secluded Mediterranean waters and private terraced suites.
+              A sanctuary to step away. And feel entirely yourself amidst secluded regal grounds and private terraced suites.
             </p>
 
             <div className="animate-hero-desc pt-2">
@@ -184,7 +184,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 href="#destinations"
                 className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-sand-200 hover:text-white border-b border-sand-400 pb-1 transition-all hover:gap-3"
               >
-                Discover the Maison &darr;
+                Discover the Palace &darr;
               </a>
             </div>
           </div>
@@ -199,8 +199,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 <span className="text-[10px] uppercase tracking-widest text-sand-600 font-semibold block">Make time for you</span>
                 <h3 className="text-2xl font-serif font-medium text-noir-950 mt-0.5">A stay to remember.</h3>
               </div>
-              <div className="w-9 h-9 rounded-full border border-sand-400 flex items-center justify-center font-serif text-sm bg-sand-100 shadow-inner">
-                M
+              <div className="w-9 h-9 rounded-full border border-sand-400 flex items-center justify-center font-serif text-sm bg-sand-100 shadow-inner font-semibold text-accent-gold">
+                G
               </div>
             </div>
 
@@ -276,14 +276,14 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6 reveal-on-scroll">
             <span className="text-xs uppercase tracking-[0.3em] text-sand-600 font-semibold block">
-              01 / The Maison Philosophy
+              01 / The Palace Heritage
             </span>
             <h2 className="text-4xl sm:text-6xl font-serif text-noir-950 font-normal leading-tight">
               Not just a change of scenery. <br />
               <span className="italic">A change of pace.</span>
             </h2>
             <p className="text-sm text-sand-700 leading-relaxed max-w-lg">
-              The best places don’t ask you to be anyone else. They give you space to settle in, to switch off, and to follow the day wherever it takes you.
+              The Grand Girvan Palace offers space to settle in, to switch off, and to follow the day wherever it takes you amidst private coastal grounds and royal hospitality.
             </p>
             <div className="pt-2 flex items-center gap-8 text-xs text-sand-800">
               <div className="flex items-center gap-2">
@@ -466,8 +466,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       <footer className="bg-sand-200/70 border-t border-sand-300 py-12 px-6 md:px-12 mt-20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-sand-700">
           <div>
-            <span className="font-serif text-lg text-noir-950 font-medium block">MAISON VELOUR</span>
-            <span>&copy; {new Date().getFullYear()} Maison Velour Hospitality Group. All rights reserved.</span>
+            <span className="font-serif text-lg text-noir-950 font-medium block">THE GRAND GIRVAN PALACE</span>
+            <span>&copy; {new Date().getFullYear()} The Grand Girvan Palace Hospitality Group. All rights reserved.</span>
           </div>
 
           <div className="flex items-center gap-6">

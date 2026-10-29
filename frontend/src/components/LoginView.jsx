@@ -43,11 +43,11 @@ export default function LoginView({ onBackToPublic }) {
             <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff &amp; Operations
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-serif tracking-wide text-white font-normal uppercase">
-          Maison Velour
+        <h1 className="text-3xl md:text-5xl font-serif tracking-wide text-white font-normal uppercase">
+          The Grand Girvan Palace
         </h1>
         <p className="text-xs uppercase tracking-[0.3em] text-sand-300 mt-1">
-          Hotel &amp; Private Retreat
+          Heritage Hotel &amp; Luxury Retreat
         </p>
       </div>
 
@@ -121,7 +121,7 @@ export default function LoginView({ onBackToPublic }) {
       </div>
 
       <p className="mt-8 text-xs text-sand-300/80 tracking-wider">
-        Maison Velour Property Management System &bull; Restricted Access
+        The Grand Girvan Palace Management System &bull; Restricted Access
       </p>
     </div>
   );

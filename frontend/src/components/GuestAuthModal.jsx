@@ -98,7 +98,7 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
         {/* Brand Tag & Segmented Sliding Pill Selector */}
         <div className="text-center mb-5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-sand-300 bg-sand-100 text-sand-800 text-[10px] tracking-widest uppercase mb-3 font-semibold">
-            <Award className="w-3 h-3 text-accent-gold" /> Maison Velour Club
+            <Award className="w-3 h-3 text-accent-gold" /> The Grand Girvan Palace Club
           </div>
 
           {/* Segmented Pill Tabs with Animated Indicator */}
@@ -201,7 +201,7 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
               </form>
 
               <div className="mt-5 text-center text-xs text-sand-600">
-                New to Maison Velour?{' '}
+                New to The Grand Girvan Palace?{' '}
                 <button
                   type="button"
                   onClick={() => { setActiveTab(1); setError(''); }}

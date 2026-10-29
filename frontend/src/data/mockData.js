@@ -2,27 +2,27 @@
 export const INITIAL_BRANCHES = [
   { 
     Branch_ID: 'b-01', 
-    Location_Name: 'Maison Velour Cote d\'Azur', 
-    Address: '72 Boulevard de la Croisette, Cannes, France', 
-    Contact_Info: '+33 4 93 39 00 00',
+    Location_Name: 'The Grand Girvan Palace • Coastal Estate', 
+    Address: '1 Girvan Palace Way, Ayrshire Coast, Scotland', 
+    Contact_Info: '+44 1465 710000',
     Image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200',
-    Tagline: 'Sun-drenched Riviera estate with private cove and infinity terraces'
+    Tagline: 'Regal coastal palace surrounded by private cliffs and manicured royal gardens'
   },
   { 
     Branch_ID: 'b-02', 
-    Location_Name: 'Maison Velour Amalfi Coast', 
-    Address: 'Via dell\'Amore 14, Positano, Italy', 
-    Contact_Info: '+39 089 875 000',
+    Location_Name: 'The Grand Girvan Palace • Lake Pavilion', 
+    Address: 'Via Regina 42, Lake Como, Italy', 
+    Contact_Info: '+39 031 950 000',
     Image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=1200',
-    Tagline: 'Cliffside retreat overlooking the Tyrrhenian waters and lemon groves'
+    Tagline: 'Historic lakeside villa with private boat moorings and terraced vineyards'
   },
   { 
     Branch_ID: 'b-03', 
-    Location_Name: 'Maison Velour Kyoto Pavilion', 
-    Address: 'Higashiyama-ku, Kyoto, Japan', 
-    Contact_Info: '+81 75 561 0000',
+    Location_Name: 'The Grand Girvan Palace • Highland Sanctuary', 
+    Address: 'Loch Fyne Highlands, Scotland', 
+    Contact_Info: '+44 1499 300000',
     Image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=1200',
-    Tagline: 'Serene bamboo sanctuary with private onsens and minimalist timber architecture'
+    Tagline: 'Majestic castle sanctuary featuring private lochside lodges and thermal spas'
   }
 ];
 
@@ -31,7 +31,7 @@ export const INITIAL_STAFF = [
     Staff_ID: 'st-01',
     First_Name: 'Elena',
     Last_Name: 'Rostova',
-    Email: 'manager@maisonvelour.com',
+    Email: 'manager@grandgirvanpalace.com',
     Role: 'Manager',
     Branch_ID: 'b-01',
     Department_Managed: 'Executive Operations',
@@ -42,7 +42,7 @@ export const INITIAL_STAFF = [
     Staff_ID: 'st-02',
     First_Name: 'Julian',
     Last_Name: 'Mercier',
-    Email: 'reception@maisonvelour.com',
+    Email: 'reception@grandgirvanpalace.com',
     Role: 'Receptionist',
     Branch_ID: 'b-01',
     Shift_Timing: 'Morning (07:00 - 15:30)',
@@ -53,7 +53,7 @@ export const INITIAL_STAFF = [
     Staff_ID: 'st-03',
     First_Name: 'Chloe',
     Last_Name: 'Dubois',
-    Email: 'therapist@maisonvelour.com',
+    Email: 'therapist@grandgirvanpalace.com',
     Role: 'Therapist',
     Branch_ID: 'b-01',
     Specialty: 'Aromatherapy & Deep Tissue',
