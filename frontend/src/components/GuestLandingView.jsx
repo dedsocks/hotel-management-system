@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { INITIAL_BRANCHES, INITIAL_ROOMS } from '../data/mockData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import CustomSelect from './CustomSelect';
 import { 
   Users, 
   Sparkles, 
@@ -204,26 +205,19 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
             </div>
 
             <div className="mt-5 space-y-4">
-              {/* Destination Selector */}
-              <div>
-                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
-                  Destination Estate
-                </label>
-                <select
-                  value={selectedBranch.Branch_ID}
-                  onChange={(e) => {
-                    const found = INITIAL_BRANCHES.find(b => b.Branch_ID === e.target.value);
-                    if (found) setSelectedBranch(found);
-                  }}
-                  className="w-full bg-white border border-sand-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-noir-900 focus:outline-none focus:border-noir-900 transition-colors cursor-pointer"
-                >
-                  {INITIAL_BRANCHES.map(b => (
-                    <option key={b.Branch_ID} value={b.Branch_ID}>
-                      {b.Location_Name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Destination Custom Select */}
+              <CustomSelect
+                label="Destination Estate"
+                value={selectedBranch.Branch_ID}
+                onChange={(branchId) => {
+                  const found = INITIAL_BRANCHES.find(b => b.Branch_ID === branchId);
+                  if (found) setSelectedBranch(found);
+                }}
+                options={INITIAL_BRANCHES.map(b => ({
+                  value: b.Branch_ID,
+                  label: b.Location_Name
+                }))}
+              />
 
               {/* Date Pickers */}
               <div className="grid grid-cols-2 gap-3">

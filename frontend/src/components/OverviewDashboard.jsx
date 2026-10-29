@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Filter
 } from 'lucide-react';
+import CustomSelect from './CustomSelect';
 import { 
   INITIAL_RESERVATIONS, 
   INITIAL_ROOMS, 
@@ -55,19 +56,16 @@ export default function OverviewDashboard({ onNavigateTab }) {
             <span className="px-3 py-1 rounded-full bg-sand-50/20 backdrop-blur-md border border-white/20 text-sand-50 text-[11px] tracking-widest uppercase font-semibold">
               Live Property Operations
             </span>
-            <div className="flex items-center gap-2 bg-noir-900/80 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl text-xs">
-              <Building className="w-3.5 h-3.5 text-accent-gold" />
-              <select
+            <div className="w-56">
+              <CustomSelect
+                variant="dark"
                 value={selectedBranchId}
-                onChange={(e) => setSelectedBranchId(e.target.value)}
-                className="bg-transparent text-sand-50 font-medium focus:outline-none cursor-pointer text-xs"
-              >
-                {INITIAL_BRANCHES.map(b => (
-                  <option key={b.Branch_ID} value={b.Branch_ID} className="bg-noir-900 text-sand-50">
-                    {b.Location_Name}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedBranchId}
+                options={INITIAL_BRANCHES.map(b => ({
+                  value: b.Branch_ID,
+                  label: b.Location_Name
+                }))}
+              />
             </div>
           </div>
 
