@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
 
-export default function LoginView() {
-  const { login } = useAuth();
+export default function LoginView({ onBackToPublic }) {
+  const { loginStaff } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const result = login(email, password);
+    const result = loginStaff(email, password);
     if (!result.success) {
       setError(result.error);
     } else {
@@ -30,8 +30,18 @@ export default function LoginView() {
 
       {/* Brand Header */}
       <div className="text-center mb-8 relative z-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sand-400/40 bg-sand-50/10 backdrop-blur-md text-sand-200 text-xs tracking-widest uppercase mb-4">
-          <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff &amp; Operations
+        {onBackToPublic && (
+          <button
+            onClick={onBackToPublic}
+            className="mb-4 inline-flex items-center gap-1.5 text-xs text-sand-300 hover:text-white transition-colors"
+          >
+            &larr; Return to Guest Website
+          </button>
+        )}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sand-400/40 bg-sand-50/10 backdrop-blur-md text-sand-200 text-xs tracking-widest uppercase mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff &amp; Operations
+          </div>
         </div>
         <h1 className="text-4xl md:text-5xl font-serif tracking-wide text-white font-normal uppercase">
           Maison Velour

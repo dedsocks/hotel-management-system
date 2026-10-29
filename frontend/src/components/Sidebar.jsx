@@ -11,8 +11,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-export default function Sidebar({ currentTab, onSelectTab }) {
-  const { currentUser, logout } = useAuth();
+export default function Sidebar({ currentTab, onSelectTab, onExitToPublic }) {
+  const { currentStaff, logoutStaff } = useAuth();
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Building2 },
@@ -43,7 +43,7 @@ export default function Sidebar({ currentTab, onSelectTab }) {
         {/* Navigation items */}
         <nav className="p-3 space-y-1">
           {navItems.map((item) => {
-            if (item.roleRequired && currentUser?.Role !== item.roleRequired) {
+            if (item.roleRequired && currentStaff?.Role !== item.roleRequired) {
               return null;
             }
             const Icon = item.icon;
@@ -77,26 +77,35 @@ export default function Sidebar({ currentTab, onSelectTab }) {
       </div>
 
       {/* User profile & Logout */}
-      <div className="p-4 border-t border-sand-300 bg-sand-200/40">
-        <div className="flex items-center justify-between">
+      <div className="p-4 border-t border-sand-300 bg-sand-200/40 space-y-2">
+        {onExitToPublic && (
+          <button
+            onClick={onExitToPublic}
+            className="w-full py-1.5 px-3 rounded-lg text-[11px] text-sand-700 hover:text-noir-950 hover:bg-sand-300/60 font-medium transition-colors text-left flex items-center justify-between"
+          >
+            <span>&larr; Public Guest Website</span>
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        )}
+        <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
             <img
-              src={currentUser?.Avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
-              alt={currentUser?.First_Name}
+              src={currentStaff?.Avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
+              alt={currentStaff?.First_Name}
               className="w-9 h-9 rounded-full object-cover border border-sand-400"
             />
             <div className="truncate">
               <div className="text-xs font-semibold text-noir-900 truncate">
-                {currentUser?.First_Name} {currentUser?.Last_Name}
+                {currentStaff?.First_Name} {currentStaff?.Last_Name}
               </div>
               <div className="text-[11px] text-sand-600 truncate flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block"></span>
-                {currentUser?.Role}
+                {currentStaff?.Role}
               </div>
             </div>
           </div>
           <button
-            onClick={logout}
+            onClick={logoutStaff}
             title="Log Out"
             className="p-1.5 rounded-md hover:bg-sand-300 text-sand-600 hover:text-red-700 transition-colors"
           >

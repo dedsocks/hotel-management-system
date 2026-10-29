@@ -4,7 +4,7 @@ import { Building, ShieldCheck, Mail, Phone, Calendar, Award } from 'lucide-reac
 import { INITIAL_STAFF } from '../data/mockData';
 
 export default function StaffDirectoryView() {
-  const { currentUser } = useAuth();
+  const { currentStaff } = useAuth();
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
@@ -23,13 +23,13 @@ export default function StaffDirectoryView() {
 
         <div className="text-right">
           <span className="text-xs text-sand-600">Active Viewing Role:</span>
-          <div className="text-sm font-semibold text-noir-900">{currentUser?.Role}</div>
+          <div className="text-sm font-semibold text-noir-900">{currentStaff?.Role}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {INITIAL_STAFF.map((staff) => {
-          const isCurrent = currentUser?.Staff_ID === staff.Staff_ID;
+          const isCurrent = currentStaff?.Staff_ID === staff.Staff_ID;
 
           return (
             <div
