@@ -21,11 +21,13 @@ import {
 } from '../data/mockData';
 
 export default function OverviewDashboard({ onNavigateTab }) {
-  const [selectedBranch, setSelectedBranch] = useState('b-01');
+  const [selectedBranchId, setSelectedBranchId] = useState('b-01');
   const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
   const [rooms, setRooms] = useState(INITIAL_ROOMS);
   const [tasks, setTasks] = useState(INITIAL_HOUSEKEEPING_TASKS);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const currentBranch = INITIAL_BRANCHES.find(b => b.Branch_ID === selectedBranchId) || INITIAL_BRANCHES[0];
 
   // Quick Stats
   const occupiedCount = rooms.filter(r => r.Status === 'Occupied').length;
@@ -41,45 +43,51 @@ export default function OverviewDashboard({ onNavigateTab }) {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
-      {/* Top Banner with Hotel Aesthetics */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-sand-300">
-        <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-sand-700 font-semibold mb-1">
-            <span>Property &bull; Cannes Estate</span>
-            <span className="text-sand-400">/</span>
-            <span className="text-accent-gold">Live Operations</span>
+      {/* Property Hero Visual Banner with High-Quality Photography */}
+      <div className="relative rounded-3xl overflow-hidden border border-sand-300/80 shadow-md h-64 bg-noir-950">
+        <img
+          src={currentBranch.Image}
+          alt={currentBranch.Location_Name}
+          className="w-full h-full object-cover opacity-60 transition-all duration-700 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/40 to-transparent flex flex-col justify-between p-6 md:p-8">
+          <div className="flex items-center justify-between">
+            <span className="px-3 py-1 rounded-full bg-sand-50/20 backdrop-blur-md border border-white/20 text-sand-50 text-[11px] tracking-widest uppercase font-semibold">
+              Live Property Operations
+            </span>
+            <div className="flex items-center gap-2 bg-noir-900/80 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl text-xs">
+              <Building className="w-3.5 h-3.5 text-accent-gold" />
+              <select
+                value={selectedBranchId}
+                onChange={(e) => setSelectedBranchId(e.target.value)}
+                className="bg-transparent text-sand-50 font-medium focus:outline-none cursor-pointer text-xs"
+              >
+                {INITIAL_BRANCHES.map(b => (
+                  <option key={b.Branch_ID} value={b.Branch_ID} className="bg-noir-900 text-sand-50">
+                    {b.Location_Name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <h1 className="text-3xl font-serif text-noir-950 font-normal">
-            Welcome to Maison Velour
-          </h1>
-          <p className="text-sm text-sand-700 mt-0.5">
-            Real-time occupancy, guest arrivals, and housekeeping monitoring.
-          </p>
-        </div>
 
-        {/* Branch switcher dropdown */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-sand-200/70 border border-sand-300 px-3 py-1.5 rounded-lg text-xs">
-            <Building className="w-3.5 h-3.5 text-sand-700" />
-            <select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className="bg-transparent text-noir-900 font-medium focus:outline-none cursor-pointer"
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-serif text-white font-normal">
+                {currentBranch.Location_Name}
+              </h1>
+              <p className="text-xs md:text-sm text-sand-200 mt-1 max-w-xl">
+                {currentBranch.Tagline} &bull; {currentBranch.Address}
+              </p>
+            </div>
+
+            <button 
+              onClick={() => onNavigateTab('reservations')}
+              className="self-start md:self-auto px-4 py-2.5 bg-sand-50 hover:bg-white text-noir-950 rounded-xl text-xs font-semibold tracking-wider uppercase flex items-center gap-2 transition-all shadow-lg active:scale-95"
             >
-              {INITIAL_BRANCHES.map(b => (
-                <option key={b.Branch_ID} value={b.Branch_ID}>
-                  {b.Location_Name}
-                </option>
-              ))}
-            </select>
+              <Plus className="w-3.5 h-3.5 text-noir-900" /> New Reservation
+            </button>
           </div>
-
-          <button 
-            onClick={() => onNavigateTab('reservations')}
-            className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-xs font-medium tracking-wider uppercase flex items-center gap-2 transition-all shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" /> New Reservation
-          </button>
         </div>
       </div>
 
@@ -209,7 +217,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
               <span className="text-[11px] text-sand-600">{rooms.length} Suites Total</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               {rooms.map((room) => {
                 const isOccupied = room.Status === 'Occupied';
                 const isReserved = room.Status === 'Reserved';
@@ -217,20 +225,33 @@ export default function OverviewDashboard({ onNavigateTab }) {
                 return (
                   <div
                     key={room.Room_ID}
-                    className={`p-3 rounded-xl border text-center transition-all ${
+                    className={`rounded-xl border overflow-hidden text-left transition-all ${
                       isOccupied
-                        ? 'bg-noir-900 text-sand-50 border-noir-950 shadow-sm'
+                        ? 'bg-sand-50 border-noir-900 shadow-sm'
                         : isReserved
-                        ? 'bg-amber-50 text-amber-900 border-amber-300'
-                        : 'bg-sand-100/80 text-noir-850 border-sand-300 hover:border-sand-400'
+                        ? 'bg-amber-50/60 border-amber-300'
+                        : 'bg-sand-50 border-sand-300 hover:border-sand-400'
                     }`}
                   >
-                    <div className="text-xs font-semibold">{room.Room_Number}</div>
-                    <div className={`text-[10px] truncate ${isOccupied ? 'text-accent-gold' : 'text-sand-600'}`}>
-                      {room.TypeName.split(' ')[0]}
+                    <div className="h-20 w-full relative overflow-hidden bg-sand-200">
+                      <img 
+                        src={room.Image} 
+                        alt={room.TypeName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                      <span className={`absolute top-1.5 right-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                        isOccupied ? 'bg-noir-900 text-sand-50' : isReserved ? 'bg-amber-600 text-white' : 'bg-sand-100/90 text-noir-900'
+                      }`}>
+                        {room.Status}
+                      </span>
                     </div>
-                    <div className="text-[9px] mt-1 font-medium tracking-tight uppercase opacity-80">
-                      {room.Status}
+                    <div className="p-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-noir-900">Suite {room.Room_Number}</span>
+                        <span className="text-[11px] font-medium text-sand-700">&euro;{room.Rate}</span>
+                      </div>
+                      <div className="text-[11px] text-sand-600 truncate">{room.TypeName}</div>
+                      <div className="text-[9px] text-sand-500 truncate mt-0.5">{room.Specs}</div>
                     </div>
                   </div>
                 );
