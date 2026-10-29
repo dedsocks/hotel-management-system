@@ -4,7 +4,7 @@ import { Building, ShieldCheck, Mail, Phone, Calendar, Award } from 'lucide-reac
 import { INITIAL_STAFF } from '../data/mockData';
 
 export default function StaffDirectoryView() {
-  const { currentUser, switchUser } = useAuth();
+  const { currentUser } = useAuth();
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
@@ -103,19 +103,12 @@ export default function StaffDirectoryView() {
                 )}
               </div>
 
-              <div className="mt-6 pt-4 border-t border-sand-200">
-                <button
-                  type="button"
-                  disabled={isCurrent}
-                  onClick={() => switchUser(staff.Staff_ID)}
-                  className={`w-full py-2 rounded-lg text-xs font-medium tracking-wider uppercase transition-all ${
-                    isCurrent
-                      ? 'bg-sand-200 text-sand-500 cursor-default'
-                      : 'bg-sand-100 hover:bg-noir-900 hover:text-sand-50 text-noir-900 border border-sand-300'
-                  }`}
-                >
-                  {isCurrent ? 'Current Session' : `Switch to ${staff.First_Name}`}
-                </button>
+              <div className="mt-6 pt-4 border-t border-sand-200 flex items-center justify-between text-xs">
+                <span className="text-sand-600 font-medium">Duty Status:</span>
+                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Active on Property
+                </span>
               </div>
             </div>
           );
