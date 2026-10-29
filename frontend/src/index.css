@@ -7,6 +7,7 @@
     background-color: #FBF8F1;
     color: #1A212D;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, .font-serif-luxury {
@@ -28,4 +29,98 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #A89270;
+}
+
+/* =========================================================================
+   LUXURY MOTION & SCROLL-DRIVEN ANIMATIONS
+   Compositor-only transforms & opacity, with graceful fallback
+   ========================================================================= */
+
+@keyframes luxuryFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes luxuryFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes heroZoom {
+  0% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-hero-zoom {
+  animation: heroZoom 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-subtle-float {
+  animation: subtleFloat 4s ease-in-out infinite;
+}
+
+/* CSS Scroll-Driven Animations (Native Chrome/Edge/Safari 26+) */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .scroll-reveal {
+      animation: luxuryFadeUp auto cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation-timeline: view();
+      animation-range: entry 15% cover 35%;
+    }
+
+    .scroll-scale-reveal {
+      animation: luxuryFadeUp auto cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+  }
+}
+
+/* IntersectionObserver Fallback & Universal Class */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Luxury cursor glow effect */
+.luxury-cursor-glow {
+  pointer-events: none;
+  position: fixed;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(197, 168, 128, 0.08) 0%, rgba(197, 168, 128, 0) 70%);
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  transition: transform 0.15s ease-out;
 }
