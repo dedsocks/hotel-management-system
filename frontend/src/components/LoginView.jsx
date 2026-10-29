@@ -26,19 +26,24 @@ export default function LoginView() {
   };
 
   return (
-    <div className="min-h-screen bg-sand-100 flex flex-col justify-center items-center px-4 relative overflow-hidden">
-      {/* Decorative background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-sand-300/40 via-sand-200/20 to-transparent pointer-events-none rounded-b-full blur-2xl" />
+    <div className="min-h-screen bg-noir-950 flex flex-col justify-center items-center px-4 relative overflow-hidden">
+      {/* Background Hero Photography with Dark Overlay */}
+      <img
+        src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=2000"
+        alt="Maison Velour Estate"
+        className="absolute inset-0 w-full h-full object-cover opacity-25 filter blur-[1px] scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/80 to-noir-950/60" />
 
       {/* Brand Header */}
       <div className="text-center mb-8 relative z-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sand-400 bg-sand-50/80 text-sand-800 text-xs tracking-widest uppercase mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sand-400/40 bg-sand-50/10 backdrop-blur-md text-sand-200 text-xs tracking-widest uppercase mb-4">
           <Sparkles className="w-3.5 h-3.5 text-accent-gold" /> Staff &amp; Operations
         </div>
-        <h1 className="text-4xl md:text-5xl font-serif tracking-wide text-noir-950 font-normal uppercase">
+        <h1 className="text-4xl md:text-5xl font-serif tracking-wide text-white font-normal uppercase">
           Maison Velour
         </h1>
-        <p className="text-xs uppercase tracking-[0.3em] text-sand-600 mt-1">
+        <p className="text-xs uppercase tracking-[0.3em] text-sand-300 mt-1">
           Hotel &amp; Private Retreat
         </p>
       </div>
