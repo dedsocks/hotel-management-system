@@ -62,9 +62,45 @@ export const INITIAL_STAFF = [
 ];
 
 export const INITIAL_GUESTS = [
-  { Guest_ID: 'g-01', First_Name: 'Alexander', Last_Name: 'Wright', Email: 'alex.wright@luxurytravel.com', Phone: '+1 (555) 234-5678', Loyalty_Points: 1420, Loyalty_Tier: 'Platinum', Special_Requests: 'High floor, feather-free pillows' },
-  { Guest_ID: 'g-02', First_Name: 'Camilla', Last_Name: 'Laurent', Email: 'camilla@laurent-design.fr', Phone: '+33 6 12 34 56 78', Loyalty_Points: 850, Loyalty_Tier: 'Gold', Special_Requests: 'Champagne on arrival' },
-  { Guest_ID: 'g-03', First_Name: 'Marcus', Last_Name: 'Vance', Email: 'mvance@investcorp.com', Phone: '+44 20 7946 0912', Loyalty_Points: 320, Loyalty_Tier: 'Silver', Special_Requests: 'Early check-in preferred' }
+  { 
+    Guest_ID: 'g-01', 
+    First_Name: 'Alexander', 
+    Last_Name: 'Wright', 
+    Email: 'alex.wright@luxurytravel.com', 
+    Password: 'password123',
+    Phone: '+1 (555) 234-5678', 
+    Loyalty_Points: 1420, 
+    Loyalty_Tier: 'Platinum', 
+    Account_Status: 'Active',
+    Special_Requests: 'High floor, feather-free pillows',
+    Avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
+  },
+  { 
+    Guest_ID: 'g-02', 
+    First_Name: 'Camilla', 
+    Last_Name: 'Laurent', 
+    Email: 'camilla@laurent-design.fr', 
+    Password: 'password123',
+    Phone: '+33 6 12 34 56 78', 
+    Loyalty_Points: 850, 
+    Loyalty_Tier: 'Gold', 
+    Account_Status: 'Active',
+    Special_Requests: 'Champagne on arrival',
+    Avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=250'
+  },
+  { 
+    Guest_ID: 'g-03', 
+    First_Name: 'Marcus', 
+    Last_Name: 'Vance', 
+    Email: 'mvance@investcorp.com', 
+    Password: 'password123',
+    Phone: '+44 20 7946 0912', 
+    Loyalty_Points: 320, 
+    Loyalty_Tier: 'Silver', 
+    Account_Status: 'Active',
+    Special_Requests: 'Early check-in preferred',
+    Avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250'
+  }
 ];
 
 export const INITIAL_ROOMS = [

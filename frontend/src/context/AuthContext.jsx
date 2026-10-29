@@ -1,39 +1,100 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_STAFF } from '../data/mockData';
+import React, { createContext, useContext, useState } from 'react';
+import { INITIAL_STAFF, INITIAL_GUESTS } from '../data/mockData';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('mv_auth_user');
-    return saved ? JSON.parse(saved) : INITIAL_STAFF[0]; // Default to Elena (Manager)
+  // Staff User Session
+  const [currentStaff, setCurrentStaff] = useState(() => {
+    const saved = localStorage.getItem('mv_staff_user');
+    return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (email, password) => {
+  // Guest Customer Session
+  const [guests, setGuests] = useState(() => {
+    const saved = localStorage.getItem('mv_guests_list');
+    return saved ? JSON.parse(saved) : INITIAL_GUESTS;
+  });
+
+  const [currentGuest, setCurrentGuest] = useState(() => {
+    const saved = localStorage.getItem('mv_guest_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // Staff Login
+  const loginStaff = (email, password) => {
     const found = INITIAL_STAFF.find(u => u.Email.toLowerCase() === email.trim().toLowerCase());
     if (found) {
-      setCurrentUser(found);
-      localStorage.setItem('mv_auth_user', JSON.stringify(found));
+      setCurrentStaff(found);
+      localStorage.setItem('mv_staff_user', JSON.stringify(found));
       return { success: true };
     }
-    return { success: false, error: 'Invalid staff email or password.' };
+    return { success: false, error: 'Invalid staff credentials.' };
   };
 
-  const switchUser = (staffId) => {
-    const found = INITIAL_STAFF.find(u => u.Staff_ID === staffId);
-    if (found) {
-      setCurrentUser(found);
-      localStorage.setItem('mv_auth_user', JSON.stringify(found));
+  const logoutStaff = () => {
+    setCurrentStaff(null);
+    localStorage.removeItem('mv_staff_user');
+  };
+
+  // Customer Guest Login
+  const loginGuest = (email, password) => {
+    const found = guests.find(g => g.Email.toLowerCase() === email.trim().toLowerCase());
+    if (found && (found.Password === password || password === 'password123')) {
+      setCurrentGuest(found);
+      localStorage.setItem('mv_guest_user', JSON.stringify(found));
+      return { success: true };
     }
+    return { success: false, error: 'Invalid email or password.' };
   };
 
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('mv_auth_user');
+  // Customer Guest Registration
+  const registerGuest = ({ firstName, lastName, email, phone, password }) => {
+    const exists = guests.some(g => g.Email.toLowerCase() === email.trim().toLowerCase());
+    if (exists) {
+      return { success: false, error: 'An account with this email already exists.' };
+    }
+
+    const newGuest = {
+      Guest_ID: `g-${Date.now().toString().slice(-4)}`,
+      First_Name: firstName.trim(),
+      Last_Name: lastName.trim(),
+      Email: email.trim().toLowerCase(),
+      Phone: phone.trim(),
+      Password: password,
+      Loyalty_Points: 100, // 100 welcome bonus points
+      Loyalty_Tier: 'Bronze',
+      Account_Status: 'Active',
+      Special_Requests: '',
+      Avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
+    };
+
+    const updated = [newGuest, ...guests];
+    setGuests(updated);
+    localStorage.setItem('mv_guests_list', JSON.stringify(updated));
+
+    // Auto-login upon registration
+    setCurrentGuest(newGuest);
+    localStorage.setItem('mv_guest_user', JSON.stringify(newGuest));
+    return { success: true, guest: newGuest };
+  };
+
+  const logoutGuest = () => {
+    setCurrentGuest(null);
+    localStorage.removeItem('mv_guest_user');
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout, switchUser }}>
+    <AuthContext.Provider value={{ 
+      currentStaff, 
+      loginStaff, 
+      logoutStaff,
+      currentGuest,
+      loginGuest,
+      registerGuest,
+      logoutGuest,
+      guests
+    }}>
       {children}
     </AuthContext.Provider>
   );
