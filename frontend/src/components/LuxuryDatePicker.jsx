@@ -149,16 +149,16 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
         </div>
       </div>
 
-      {/* Floating Animated Luxury Calendar Flyout - Upward Flyout with Auto Alignment */}
+      {/* Calendar Overlay inside DatePicker container */}
       {isOpen && (
-        <div className="absolute left-0 right-0 bottom-full mb-3 z-50 bg-sand-50/98 backdrop-blur-2xl rounded-3xl border border-sand-300 shadow-2xl p-5 text-noir-900 animate-modal-card ring-1 ring-noir-950/5">
+        <div className="absolute inset-x-0 -top-2 z-50 bg-sand-50/98 backdrop-blur-2xl rounded-2xl border border-sand-300 shadow-2xl p-4 text-noir-900 ring-1 ring-noir-950/10 animate-modal-card">
           {/* Header Month & Navigation */}
-          <div className="flex items-center justify-between pb-3 border-b border-sand-200">
+          <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-sand-200">
             <div>
-              <span className="text-[10px] uppercase tracking-widest text-sand-600 font-semibold block">
-                {selectingStep === 'checkIn' ? 'Select Check In Date' : 'Select Check Out Date'}
+              <span className="text-[9px] uppercase tracking-widest text-sand-600 font-semibold block">
+                {selectingStep === 'checkIn' ? '1. Select Check In' : '2. Select Check Out'}
               </span>
-              <h4 className="text-base font-serif font-medium text-noir-950 mt-0.5">
+              <h4 className="text-sm font-serif font-semibold text-noir-950">
                 {MONTH_NAMES[viewMonth]} {viewYear}
               </h4>
             </div>
@@ -167,22 +167,30 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-2 rounded-full hover:bg-sand-200 text-sand-700 hover:text-noir-950 transition-colors"
+                className="p-1 rounded-full hover:bg-sand-200 text-sand-700 hover:text-noir-950 transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-2 rounded-full hover:bg-sand-200 text-sand-700 hover:text-noir-950 transition-colors"
+                className="p-1 rounded-full hover:bg-sand-200 text-sand-700 hover:text-noir-950 transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-full hover:bg-sand-200 text-sand-500 hover:text-noir-950 transition-colors ml-1"
+                title="Close"
+              >
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
           {/* Days of week header */}
-          <div className="grid grid-cols-7 gap-1 text-center py-2 text-[10px] font-semibold uppercase text-sand-500 tracking-wider">
+          <div className="grid grid-cols-7 gap-1 text-center py-1 text-[9px] font-semibold uppercase text-sand-500 tracking-wider">
             {DAYS_SHORT.map((d) => (
               <div key={d}>{d}</div>
             ))}
@@ -192,7 +200,7 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
           <div className="grid grid-cols-7 gap-1 text-center text-xs">
             {/* Empty Offset cells */}
             {Array.from({ length: offset }).map((_, i) => (
-              <div key={`empty-${i}`} className="h-9" />
+              <div key={`empty-${i}`} className="h-7" />
             ))}
 
             {/* Month Day Cells */}
@@ -209,11 +217,11 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
                   key={day}
                   type="button"
                   onClick={() => handleDateClick(day)}
-                  className={`h-9 w-full rounded-lg text-xs font-medium transition-all relative flex items-center justify-center ${
+                  className={`h-7 w-full rounded-md text-[11px] font-medium transition-all relative flex items-center justify-center ${
                     isCheckIn || isCheckOut
-                      ? 'bg-noir-900 text-sand-50 font-semibold shadow-sm'
+                      ? 'bg-noir-900 text-sand-50 font-semibold shadow-sm scale-105'
                       : isInRange
-                      ? 'bg-sand-200/90 text-noir-950'
+                      ? 'bg-sand-200/90 text-noir-950 font-medium'
                       : 'hover:bg-sand-200/60 text-noir-850'
                   }`}
                 >
@@ -224,16 +232,16 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
           </div>
 
           {/* Bottom Summary Bar */}
-          <div className="mt-4 pt-3 border-t border-sand-200 flex items-center justify-between text-xs text-sand-600">
+          <div className="mt-2.5 pt-2 border-t border-sand-200 flex items-center justify-between text-[11px] text-sand-600">
             <div>
-              <span className="font-semibold text-noir-900">{calcNights()} Nights</span> stay selected
+              <span className="font-semibold text-noir-900">{calcNights()} Nights</span> selected
             </div>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-xs font-semibold text-noir-900 hover:text-accent-gold transition-colors"
+              className="text-[11px] font-semibold text-noir-900 hover:text-accent-gold transition-colors"
             >
-              Done &rarr;
+              Confirm Dates &rarr;
             </button>
           </div>
         </div>
