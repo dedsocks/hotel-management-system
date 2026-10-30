@@ -317,15 +317,6 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               </div>
             )}
 
-            {/* Prominent Staff & Operations Portal Switcher */}
-            <button
-              onClick={onNavigateStaffPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sand-200/90 hover:bg-sand-300 border border-sand-400/80 text-noir-900 text-[11px] font-semibold uppercase tracking-wider transition-all shadow-xs active:scale-95 whitespace-nowrap"
-              title="Switch to Internal Hotel Staff Operations"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
-              <span>Staff Portal</span>
-            </button>
 
             <button
               onClick={() => {

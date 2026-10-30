@@ -233,7 +233,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
                       </span>
                     </td>
                     <td className="py-3.5 text-right pr-2 font-medium text-noir-900">
-                      ₹{res.Total_Amount.toLocaleString()}
+                      ₹{Number(res.Total_Amount || res.Base_Price || 0).toLocaleString()}
                     </td>
                   </tr>
                 ))}
@@ -281,7 +281,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
                     <div className="p-2.5">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-noir-900">Suite {room.Room_Number}</span>
-                        <span className="text-[11px] font-medium text-sand-700">₹{room.Rate.toLocaleString()}</span>
+                        <span className="text-[11px] font-medium text-sand-700">₹{Number(room.Rate || 0).toLocaleString()}</span>
                       </div>
                       <div className="text-[11px] text-sand-600 truncate">{room.TypeName}</div>
                       <div className="text-[9px] text-sand-500 truncate mt-0.5">{room.Specs}</div>

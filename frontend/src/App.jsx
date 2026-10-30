@@ -16,8 +16,22 @@ function AppContent() {
   const { currentStaff } = useAuth();
   
   // Navigation mode: 'guest' (default public site) or 'staff' (internal operations)
-  const [viewMode, setViewMode] = useState('guest');
+  const [viewMode, setViewMode] = useState(() => {
+    return window.location.hash === '#staff' ? 'staff' : 'guest';
+  });
   const [currentStaffTab, setCurrentStaffTab] = useState('overview');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#staff') {
+        setViewMode('staff');
+      } else if (window.location.hash === '#guest' || window.location.hash === '') {
+        setViewMode('guest');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   
   // Customer Auth modal state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -28,12 +42,22 @@ function AppContent() {
     setIsAuthModalOpen(true);
   };
 
+  const handleGoToStaff = () => {
+    window.location.hash = '#staff';
+    setViewMode('staff');
+  };
+
+  const handleGoToGuest = () => {
+    window.location.hash = '';
+    setViewMode('guest');
+  };
+
   // 1. Staff Operations Experience
   if (viewMode === 'staff') {
     // If not logged in as staff, show internal staff login screen
     if (!currentStaff) {
       return (
-        <LoginView onBackToPublic={() => setViewMode('guest')} />
+        <LoginView onBackToPublic={handleGoToGuest} />
       );
     }
 
@@ -42,7 +66,7 @@ function AppContent() {
         <Sidebar 
           currentTab={currentStaffTab} 
           onSelectTab={setCurrentStaffTab}
-          onExitToPublic={() => setViewMode('guest')}
+          onExitToPublic={handleGoToGuest}
         />
         <main className="flex-1 overflow-y-auto">
           <div key={currentStaffTab} className="animate-fade-in transition-all duration-300">
@@ -75,13 +99,13 @@ function AppContent() {
     <>
       <GuestLandingView 
         onOpenAuth={handleOpenAuth}
-        onNavigateStaffPortal={() => setViewMode('staff')}
+        onNavigateStaffPortal={handleGoToStaff}
       />
       <GuestAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
-        onSwitchStaff={() => setViewMode('staff')}
+        onSwitchStaff={handleGoToStaff}
       />
     </>
   );
