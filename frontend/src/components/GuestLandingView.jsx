@@ -459,8 +459,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       </section>
 
       {/* 5. Experiences & Curated Leisure Carousel */}
-      <section id="experiences" className="py-20 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pb-6 border-b border-sand-300 reveal-on-scroll">
+      <section id="experiences" className="py-14 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-5 border-b border-sand-300 reveal-on-scroll">
           <div>
             <span className="text-xs uppercase tracking-[0.25em] text-sand-600 block mb-1">
               Curated Itineraries
@@ -478,14 +478,14 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <button
                 onClick={prevExperience}
                 aria-label="Previous Experience"
-                className="p-3 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
+                className="p-2.5 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={nextExperience}
                 aria-label="Next Experience"
-                className="p-3 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
+                className="p-2.5 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -495,7 +495,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
         {/* Carousel Viewport Container */}
         <div className="relative">
-          <div className="overflow-hidden px-1 py-4 -my-4 -mx-1">
+          <div className="overflow-hidden px-1 py-3 -my-3 -mx-1">
             <div
               onTransitionEnd={handleTransitionEnd}
               className={`flex gap-6 ${
@@ -517,49 +517,49 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                     }}
                     className="shrink-0 group select-none"
                   >
-                    <div className="bg-sand-50 rounded-3xl overflow-hidden border border-sand-300 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col h-full justify-between">
+                    <div className="bg-sand-50 rounded-3xl overflow-hidden border border-sand-300 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full justify-between">
                       <div>
                         {/* Experience Card Image Header */}
-                        <div className="h-64 overflow-hidden relative">
+                        <div className="h-48 overflow-hidden relative">
                           <img
                             src={exp.image}
                             alt={exp.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-noir-950/60 via-transparent to-transparent" />
-                          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                            <span className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1 rounded-full bg-sand-50/95 text-noir-900 shadow-sm backdrop-blur-sm border border-sand-200">
+                          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                            <span className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-sand-50/95 text-noir-900 shadow-sm backdrop-blur-sm border border-sand-200">
                               {exp.tag}
                             </span>
                           </div>
-                          <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-sand-100 text-xs font-medium">
-                            <span className="flex items-center gap-1.5 drop-shadow-sm">
-                              <Clock className="w-3.5 h-3.5 text-accent-gold" /> {exp.duration}
+                          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-sand-100 text-[11px] font-medium">
+                            <span className="flex items-center gap-1 drop-shadow-sm">
+                              <Clock className="w-3 h-3 text-accent-gold" /> {exp.duration}
                             </span>
-                            <span className="flex items-center gap-1.5 drop-shadow-sm">
-                              <Users className="w-3.5 h-3.5 text-accent-gold" /> {exp.groupSize}
+                            <span className="flex items-center gap-1 drop-shadow-sm">
+                              <Users className="w-3 h-3 text-accent-gold" /> {exp.groupSize}
                             </span>
                           </div>
                         </div>
 
                         {/* Experience Card Body */}
-                        <div className="p-6">
-                          <div className="text-[10px] uppercase tracking-widest text-accent-bronze font-semibold mb-1">
+                        <div className="p-5">
+                          <div className="text-[9px] uppercase tracking-widest text-accent-bronze font-semibold mb-1">
                             {exp.category}
                           </div>
-                          <h3 className="text-xl font-serif font-medium text-noir-950 mb-2 group-hover:text-accent-bronze transition-colors line-clamp-1">
+                          <h3 className="text-lg font-serif font-medium text-noir-950 mb-1.5 group-hover:text-accent-bronze transition-colors line-clamp-1">
                             {exp.title}
                           </h3>
-                          <p className="text-xs text-sand-700 leading-relaxed line-clamp-3">
+                          <p className="text-xs text-sand-700 leading-relaxed line-clamp-2">
                             {exp.description}
                           </p>
                         </div>
                       </div>
 
                       {/* Card Footer */}
-                      <div className="px-6 pb-6 pt-3 border-t border-sand-200/70 flex items-center justify-between">
+                      <div className="px-5 pb-5 pt-2.5 border-t border-sand-200/70 flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] uppercase tracking-wider text-sand-600">Reserved Rate</div>
+                          <div className="text-[9px] uppercase tracking-wider text-sand-600">Reserved Rate</div>
                           <div className="text-sm font-serif font-semibold text-noir-950">{exp.price}</div>
                         </div>
                         <button
@@ -570,7 +570,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                               alert(`Inquiry logged for: ${exp.title}. Concierge will contact you.`);
                             }
                           }}
-                          className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 text-[11px] font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 group/btn"
+                          className="px-3.5 py-1.5 bg-noir-900 hover:bg-noir-950 text-sand-50 text-[11px] font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 group/btn"
                         >
                           <span>Reserve</span>
                           <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
@@ -584,7 +584,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           </div>
 
           {/* Carousel Pagination Indicator Dots */}
-          <div className="flex items-center justify-center gap-2 mt-8">
+          <div className="flex items-center justify-center gap-2 mt-5">
             {INITIAL_EXPERIENCES.map((_, dotIdx) => (
               <button
                 key={dotIdx}

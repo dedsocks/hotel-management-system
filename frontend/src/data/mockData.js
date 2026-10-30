@@ -244,7 +244,7 @@ export const INITIAL_EXPERIENCES = [
     groupSize: 'Up to 6 Guests',
     price: '₹14,500 / person',
     image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=1000',
-    description: 'Descend into our 18th-century subterranean stone vault. Sample rare vintages guided by our head sommelier, paired with artisanal highland cheeses and cured delicacies.'
+    description: 'Private 18th-century stone vault tasting guided by master sommeliers with artisan cheeses.'
   },
   {
     id: 'exp-2',
@@ -255,7 +255,7 @@ export const INITIAL_EXPERIENCES = [
     groupSize: 'Private Group (1-8)',
     price: '₹38,000 / charter',
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=1000',
-    description: 'Set sail along the dramatic Ayrshire cliffs as the evening sun descends behind Ailsa Craig. Includes chilled Laurent-Perrier champagne, canapés, and heated deck blankets.'
+    description: 'Sunset cruise along dramatic coastal cliffs with Laurent-Perrier champagne and fresh canapés.'
   },
   {
     id: 'exp-3',
@@ -266,7 +266,7 @@ export const INITIAL_EXPERIENCES = [
     groupSize: '8 Guests Max',
     price: '₹18,500 / person',
     image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&q=80&w=1000',
-    description: 'An intimate seven-course tasting journey set inside our glass botanical conservatory. Ingredients are harvested daily from palace kitchen gardens and local coastal purveyors.'
+    description: 'Seven-course conservatory tasting journey crafted from daily greenhouse and local harvests.'
   },
   {
     id: 'exp-4',
@@ -277,7 +277,7 @@ export const INITIAL_EXPERIENCES = [
     groupSize: 'Up to 4 Guests',
     price: '₹12,000 / person',
     image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&q=80&w=1000',
-    description: 'Experience the noble art of falconry on the palace moors. Handle Harris hawks, golden falcons, and barn owls under the mentorship of our resident master falconer.'
+    description: 'Handle trained Harris hawks and golden falcons across palace moors with our resident falconer.'
   },
   {
     id: 'exp-5',
@@ -288,7 +288,7 @@ export const INITIAL_EXPERIENCES = [
     groupSize: '1 - 4 Players',
     price: '₹22,000 / round',
     image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&q=80&w=1000',
-    description: 'Tee off along the rugged coastline with panoramic views of the Irish Sea. Includes private caddie service, Callaway club hire, and post-round clubhouse afternoon tea.'
+    description: 'Championship coastal links round featuring private caddie service and clubhouse afternoon tea.'
   },
   {
     id: 'exp-6',
@@ -299,6 +299,6 @@ export const INITIAL_EXPERIENCES = [
     groupSize: 'Couples / Small Groups',
     price: '₹9,500 / couple',
     image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=1000',
-    description: 'Recline on shearling loungers by roaring stone firepits in Scotland’s darkest skies. Equipped with high-power brass telescopes, single-malt scotch, and hot spiced cocoa.'
+    description: 'Dark-sky stargazing by roaring stone firepits with brass telescopes, single-malts, and cocoa.'
   }
 ];
