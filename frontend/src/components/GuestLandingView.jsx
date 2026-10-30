@@ -152,7 +152,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       </header>
 
       {/* 2. Hero Section with Cinematic Zoom & Dynamic Typography */}
-      <section className="relative min-h-[90vh] flex items-center justify-center px-6 md:px-12 py-16 bg-noir-950 overflow-hidden">
+      <section className="relative min-h-[calc(100vh-65px)] flex items-center justify-center px-6 md:px-12 py-10 bg-noir-950 overflow-hidden">
         {/* Full Bleed Architecture Photograph with Slow Zoom */}
         <img
           key={selectedBranch.Branch_ID}
@@ -162,7 +162,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/40 to-noir-950/20" />
 
-        <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-4">
+        <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Hero Typographic Manifesto with Staggered Entrance */}
           <div className="lg:col-span-7 space-y-6 text-sand-50">
             <div className="animate-hero-badge inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-sand-300">

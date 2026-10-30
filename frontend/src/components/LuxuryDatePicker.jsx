@@ -149,16 +149,16 @@ export default function LuxuryDatePicker({ checkInDate, checkOutDate, onDatesCha
         </div>
       </div>
 
-      {/* Floating Animated Luxury Calendar Flyout */}
+      {/* Floating Animated Luxury Calendar Flyout - Upward Flyout with Auto Alignment */}
       {isOpen && (
-        <div className="absolute left-0 right-0 mt-3 z-50 bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-6 text-noir-900 animate-modal-card">
+        <div className="absolute left-0 right-0 bottom-full mb-3 z-50 bg-sand-50/98 backdrop-blur-2xl rounded-3xl border border-sand-300 shadow-2xl p-5 text-noir-900 animate-modal-card ring-1 ring-noir-950/5">
           {/* Header Month & Navigation */}
-          <div className="flex items-center justify-between pb-4 border-b border-sand-200">
+          <div className="flex items-center justify-between pb-3 border-b border-sand-200">
             <div>
               <span className="text-[10px] uppercase tracking-widest text-sand-600 font-semibold block">
                 {selectingStep === 'checkIn' ? 'Select Check In Date' : 'Select Check Out Date'}
               </span>
-              <h4 className="text-lg font-serif font-medium text-noir-950 mt-0.5">
+              <h4 className="text-base font-serif font-medium text-noir-950 mt-0.5">
                 {MONTH_NAMES[viewMonth]} {viewYear}
               </h4>
             </div>
