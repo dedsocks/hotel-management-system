@@ -36,15 +36,33 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   // Ambient Mouse Glow Position
   const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
 
-  // Experience Carousel Index
+  // Experience Carousel Responsive Visible Items & Sliding Index
+  const [itemsPerView, setItemsPerView] = useState(3);
   const [currentExpIndex, setCurrentExpIndex] = useState(0);
 
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerView(3);
+      } else if (window.innerWidth >= 640) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(1);
+      }
+    };
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
+  const maxExpIndex = Math.max(0, INITIAL_EXPERIENCES.length - itemsPerView);
+
   const prevExperience = () => {
-    setCurrentExpIndex((prev) => (prev === 0 ? INITIAL_EXPERIENCES.length - 1 : prev - 1));
+    setCurrentExpIndex((prev) => (prev <= 0 ? maxExpIndex : prev - 1));
   };
 
   const nextExperience = () => {
-    setCurrentExpIndex((prev) => (prev === INITIAL_EXPERIENCES.length - 1 ? 0 : prev + 1));
+    setCurrentExpIndex((prev) => (prev >= maxExpIndex ? 0 : prev + 1));
   };
 
   // Scroll reveal container hook
@@ -461,7 +479,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
             <div
               className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] gap-6"
               style={{
-                transform: `translateX(-${currentExpIndex * (100 / (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1))}%)`
+                transform: `translateX(-${currentExpIndex * (100 / itemsPerView)}%)`
               }}
             >
               {INITIAL_EXPERIENCES.map((exp, idx) => {
@@ -539,7 +557,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
           {/* Carousel Pagination Indicator Dots */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            {INITIAL_EXPERIENCES.map((_, dotIdx) => (
+            {Array.from({ length: maxExpIndex + 1 }).map((_, dotIdx) => (
               <button
                 key={dotIdx}
                 onClick={() => setCurrentExpIndex(dotIdx)}
