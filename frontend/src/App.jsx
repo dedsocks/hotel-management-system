@@ -81,6 +81,7 @@ function AppContent() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
+        onSwitchStaff={() => setViewMode('staff')}
       />
     </>
   );

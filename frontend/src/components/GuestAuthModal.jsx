@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { X, Mail, Lock, User, Phone, Award, ArrowRight } from 'lucide-react';
 
-export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' }) {
+export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login', onSwitchStaff }) {
   // activeTab: 0 = Sign In, 1 = Register
   const [activeTab, setActiveTab] = useState(initialMode === 'register' ? 1 : 0);
   const [isClosing, setIsClosing] = useState(false);
@@ -226,6 +226,21 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
                   Create an account
                 </button>
               </div>
+
+              {onSwitchStaff && (
+                <div className="mt-3 pt-3 border-t border-sand-200 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleAnimatedClose();
+                      onSwitchStaff();
+                    }}
+                    className="text-[11px] text-sand-600 hover:text-noir-900 font-medium underline underline-offset-2 transition-colors inline-flex items-center gap-1"
+                  >
+                    <span>Are you an employee? Staff &amp; Management Portal &rarr;</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Panel 2: Register */}
