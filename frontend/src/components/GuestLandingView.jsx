@@ -44,6 +44,11 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const totalGuests = adultsCount + childrenCount;
   const guestCountSummary = `${totalGuests} Guest${totalGuests > 1 ? 's' : ''} • ${roomsCount} Room${roomsCount > 1 ? 's' : ''}`;
 
+  // Dynamically compute the number of nights from checkIn and checkOut
+  const nightsCount = Math.max(1, Math.round(
+    (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
+  ) || 1);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (guestPickerRef.current && !guestPickerRef.current.contains(e.target)) {
@@ -459,7 +464,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 className="w-full py-3.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-xl active:scale-95 group"
               >
                 <span>Find Your Room</span>
-                <span className="text-[10px] opacity-75 font-normal">&bull; 4 Nights</span>
+                <span className="text-[10px] opacity-75 font-normal">&bull; {nightsCount} Night{nightsCount > 1 ? 's' : ''}</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -802,8 +807,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                   <div className="text-xs text-sand-600">{selectedRoom.Specs}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-serif font-semibold text-noir-950">₹{(selectedRoom.Rate * 4).toLocaleString()}</div>
-                  <div className="text-[10px] text-sand-600">4 Nights Total</div>
+                  <div className="text-xl font-serif font-semibold text-noir-950">₹{(selectedRoom.Rate * nightsCount * roomsCount).toLocaleString()}</div>
+                  <div className="text-[10px] text-sand-600">{nightsCount} Night{nightsCount > 1 ? 's' : ''} • {roomsCount} Room{roomsCount > 1 ? 's' : ''}</div>
                 </div>
               </div>
             </div>
