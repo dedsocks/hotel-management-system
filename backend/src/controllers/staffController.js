@@ -56,4 +56,25 @@ exports.getAllGuests = async (req, res) => {
     console.error('Error fetching guests:', err);
     res.status(500).json({ error: 'Failed to fetch guest list' });
   }
+};// Get all invoices with reservation, guest, and payment status details
+exports.getAllInvoices = async (req, res) => {
+  try {
+    const [invoices] = await pool.query(`
+      SELECT inv.Invoice_ID, inv.Reservation_ID, inv.Issue_Date, 
+             inv.Total_Charges, inv.Tax_Applied AS Tax_Amount, inv.Discount_Applied AS Discount, inv.Net_Payable,
+             res.Check_In_Date, res.Check_Out_Date, res.Booking_Status,
+             CONCAT(g.First_Name, ' ', g.Last_Name) AS Guest_Name,
+             g.Email AS Guest_Email,
+             p.Payment_ID, p.Method AS Payment_Method, p.Payment_Status, p.Payment_Date
+      FROM Invoice inv
+      JOIN Reservations res ON inv.Reservation_ID = res.Reservation_ID
+      JOIN Guest g ON res.Guest_ID = g.Guest_ID
+      LEFT JOIN Payments p ON inv.Invoice_ID = p.Invoice_ID
+      ORDER BY inv.Issue_Date DESC, inv.Invoice_ID DESC
+    `);
+    res.json(invoices);
+  } catch (err) {
+    console.error('Error fetching invoices:', err);
+    res.status(500).json({ error: 'Failed to fetch invoices' });
+  }
 };

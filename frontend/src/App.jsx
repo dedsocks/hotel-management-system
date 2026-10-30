@@ -6,6 +6,9 @@ import LoginView from './components/LoginView';
 import Sidebar from './components/Sidebar';
 import OverviewDashboard from './components/OverviewDashboard';
 import StaffDirectoryView from './components/StaffDirectoryView';
+import ReservationsManagerView from './components/ReservationsManagerView';
+import RoomsHousekeepingView from './components/RoomsHousekeepingView';
+import BillingInvoicesView from './components/BillingInvoicesView';
 import { Sparkles } from 'lucide-react';
 
 function AppContent() {
@@ -45,19 +48,28 @@ function AppContent() {
             {currentStaffTab === 'overview' && (
               <OverviewDashboard onNavigateTab={setCurrentStaffTab} />
             )}
+            {currentStaffTab === 'reservations' && (
+              <ReservationsManagerView />
+            )}
+            {currentStaffTab === 'rooms' && (
+              <RoomsHousekeepingView />
+            )}
+            {currentStaffTab === 'billing' && (
+              <BillingInvoicesView />
+            )}
             {currentStaffTab === 'staff' && (
               <StaffDirectoryView />
             )}
-            {(currentStaffTab === 'reservations' || currentStaffTab === 'rooms' || currentStaffTab === 'pos' || currentStaffTab === 'billing') && (
+            {currentStaffTab === 'pos' && (
               <div className="p-12 max-w-4xl mx-auto text-center space-y-4">
                 <div className="inline-flex p-4 rounded-2xl bg-sand-200/60 border border-sand-300 text-accent-gold mb-2">
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <h2 className="text-3xl font-serif text-noir-950 font-normal capitalize">
-                  {currentStaffTab} Module
+                  POS &amp; Spa Services Module
                 </h2>
                 <p className="text-sm text-sand-700 max-w-lg mx-auto">
-                  Module active and connected to schema tables.
+                  Spa amenities, dining folios, and poolside charges billing interface connected to guest rooms.
                 </p>
                 <div className="pt-4">
                   <button

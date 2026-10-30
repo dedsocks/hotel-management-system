@@ -106,6 +106,16 @@ export async function fetchStaffDirectoryApi(params = {}) {
   return res.json();
 }
 
+export async function fetchInvoicesApi() {
+  const res = await fetch(`${API_BASE}/operations/invoices`);
+  return res.json();
+}
+
+export async function fetchGuestsApi() {
+  const res = await fetch(`${API_BASE}/operations/guests`);
+  return res.json();
+}
+
 export async function fetchAnalyticsApi() {
   const res = await fetch(`${API_BASE}/operations/analytics`);
   return res.json();
