@@ -9,6 +9,7 @@ import StaffDirectoryView from './components/StaffDirectoryView';
 import ReservationsManagerView from './components/ReservationsManagerView';
 import RoomsHousekeepingView from './components/RoomsHousekeepingView';
 import BillingInvoicesView from './components/BillingInvoicesView';
+import PosSpaServicesView from './components/PosSpaServicesView';
 import { Sparkles } from 'lucide-react';
 
 function AppContent() {
@@ -61,25 +62,7 @@ function AppContent() {
               <StaffDirectoryView />
             )}
             {currentStaffTab === 'pos' && (
-              <div className="p-12 max-w-4xl mx-auto text-center space-y-4">
-                <div className="inline-flex p-4 rounded-2xl bg-sand-200/60 border border-sand-300 text-accent-gold mb-2">
-                  <Sparkles className="w-8 h-8" />
-                </div>
-                <h2 className="text-3xl font-serif text-noir-950 font-normal capitalize">
-                  POS &amp; Spa Services Module
-                </h2>
-                <p className="text-sm text-sand-700 max-w-lg mx-auto">
-                  Spa amenities, dining folios, and poolside charges billing interface connected to guest rooms.
-                </p>
-                <div className="pt-4">
-                  <button
-                    onClick={() => setCurrentStaffTab('overview')}
-                    className="px-5 py-2.5 bg-noir-900 text-sand-50 rounded-lg text-xs uppercase tracking-wider font-medium hover:bg-noir-950 transition-colors shadow-sm"
-                  >
-                    Back to Dashboard
-                  </button>
-                </div>
-              </div>
+              <PosSpaServicesView />
             )}
           </div>
         </main>

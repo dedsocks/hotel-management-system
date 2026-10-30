@@ -4,7 +4,7 @@ import { INITIAL_BRANCHES, INITIAL_ROOMS, INITIAL_EXPERIENCES } from '../data/mo
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import CustomSelect from './CustomSelect';
 import LuxuryDatePicker from './LuxuryDatePicker';
-import { createReservationApi } from '../api/hotelApi';
+import { createReservationApi, fetchSpaServicesApi, bookSpaAppointmentApi } from '../api/hotelApi';
 import { 
   Users, 
   Sparkles, 
@@ -53,6 +53,24 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   // Experience inquiry modal state
   const [selectedExp, setSelectedExp] = useState(null);
   const [expSuccess, setExpSuccess] = useState(false);
+
+  // Spa Booking state
+  const [spaServices, setSpaServices] = useState([]);
+  const [selectedSpaService, setSelectedSpaService] = useState(null);
+  const [isSpaModalOpen, setIsSpaModalOpen] = useState(false);
+  const [spaDate, setSpaDate] = useState('2026-11-11');
+  const [spaTime, setSpaTime] = useState('15:00');
+  const [spaSuccess, setSpaSuccess] = useState(false);
+  const [spaError, setSpaError] = useState('');
+  const [isBookingSpa, setIsBookingSpa] = useState(false);
+
+  useEffect(() => {
+    fetchSpaServicesApi()
+      .then((data) => {
+        if (Array.isArray(data)) setSpaServices(data);
+      })
+      .catch((err) => console.error('Failed to load spa services:', err));
+  }, []);
 
   const totalGuests = adultsCount + childrenCount;
   const guestCountSummary = `${totalGuests} Guest${totalGuests > 1 ? 's' : ''} • ${roomsCount} Room${roomsCount > 1 ? 's' : ''}`;
@@ -839,7 +857,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <p className="text-xs md:text-sm text-sand-700 leading-relaxed max-w-xl">
                 Immerse yourself in mineral thermal baths, salt floatation therapy, and bespoke aromatic massages performed by licensed master therapists.
               </p>
-              <div className="pt-2 flex flex-wrap gap-4 text-xs font-semibold text-noir-900">
+              <div className="pt-2 flex flex-wrap gap-2 text-xs font-semibold text-noir-900">
                 <span className="px-3.5 py-1.5 rounded-full bg-sand-50 border border-sand-300">
                   Hydrotherapy Circuit
                 </span>
@@ -849,6 +867,38 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 <span className="px-3.5 py-1.5 rounded-full bg-sand-50 border border-sand-300">
                   Herbal Cedar Steam
                 </span>
+              </div>
+
+              {/* Live Spa Services from DB */}
+              <div className="pt-4 space-y-2.5">
+                <div className="text-[10px] uppercase tracking-wider text-sand-600 font-semibold">
+                  Featured Holistic Treatments
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {spaServices.map((srv) => (
+                    <div 
+                      key={srv.Service_ID}
+                      className="p-3 bg-white/90 border border-sand-300 rounded-xl flex items-center justify-between gap-3 shadow-xs hover:border-sand-400 transition-all"
+                    >
+                      <div>
+                        <div className="font-semibold text-xs text-noir-900">{srv.Service_Name}</div>
+                        <div className="text-[10px] text-sand-600">{srv.Duration_Minutes} Mins &bull; ₹{Number(srv.Price).toLocaleString()}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedSpaService(srv);
+                          setSpaSuccess(false);
+                          setSpaError('');
+                          setIsSpaModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-all shrink-0 active:scale-95"
+                      >
+                        Reserve
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="lg:col-span-5">
@@ -1100,6 +1150,118 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 >
                   <Sparkles className="w-3.5 h-3.5 text-accent-gold" />
                   <span>Confirm Itinerary</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Spa Appointment Booking Modal */}
+      {isSpaModalOpen && selectedSpaService && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 backdrop-blur-sm animate-modal-backdrop">
+          <div className="w-full max-w-lg bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-8 relative animate-modal-card">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-accent-gold font-semibold block mb-1">
+              Sanctuary Appointment
+            </span>
+            <h3 className="text-2xl font-serif text-noir-950 font-normal mb-1">
+              {selectedSpaService.Service_Name}
+            </h3>
+            <p className="text-xs text-sand-600 mb-5">
+              {selectedSpaService.Duration_Minutes} Minutes • ₹{Number(selectedSpaService.Price).toLocaleString()} (Billed to stay folio)
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
+                    Preferred Date
+                  </label>
+                  <input
+                    type="date"
+                    value={spaDate}
+                    onChange={(e) => setSpaDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 focus:outline-none focus:border-noir-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
+                    Session Time
+                  </label>
+                  <input
+                    type="time"
+                    value={spaTime}
+                    onChange={(e) => setSpaTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 focus:outline-none focus:border-noir-900"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-sand-200/50 rounded-xl border border-sand-300 space-y-1.5 text-xs text-sand-800">
+                <div className="flex justify-between">
+                  <span className="text-sand-600">Guest:</span>
+                  <span className="font-semibold text-noir-900">{currentGuest ? `${currentGuest.First_Name} ${currentGuest.Last_Name}` : 'In-House Resident'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sand-600">Billing Folio:</span>
+                  <span className="font-mono text-noir-900">Room Folio Billable</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-sand-300 font-serif font-bold text-sm text-noir-950">
+                  <span>Treatment Total:</span>
+                  <span>₹{Number(selectedSpaService.Price).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {spaError && (
+              <div className="p-3 mb-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs text-center font-medium">
+                {spaError}
+              </div>
+            )}
+
+            {spaSuccess ? (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs text-center font-medium flex items-center justify-center gap-2">
+                <Check className="w-4 h-4" /> Spa Treatment Confirmed! Added to your room folio.
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsSpaModalOpen(false)}
+                  disabled={isBookingSpa}
+                  className="flex-1 py-2.5 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      setIsBookingSpa(true);
+                      setSpaError('');
+                      const startDateTime = `${spaDate}T${spaTime}:00`;
+                      const res = await bookSpaAppointmentApi({
+                        reservationId: 'res-8841',
+                        serviceId: selectedSpaService.Service_ID,
+                        startTime: startDateTime
+                      });
+                      if (res.error) throw new Error(res.error);
+                      setSpaSuccess(true);
+                      setTimeout(() => {
+                        setSpaSuccess(false);
+                        setIsSpaModalOpen(false);
+                      }, 2000);
+                    } catch (err) {
+                      setSpaError(err.message || 'Failed to book spa treatment');
+                    } finally {
+                      setIsBookingSpa(false);
+                    }
+                  }}
+                  disabled={isBookingSpa}
+                  className="flex-1 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-accent-gold" />
+                  <span>{isBookingSpa ? 'Confirming...' : 'Book Treatment'}</span>
                 </button>
               </div>
             )}

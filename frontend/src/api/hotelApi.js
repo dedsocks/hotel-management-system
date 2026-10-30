@@ -120,3 +120,36 @@ export async function fetchAnalyticsApi() {
   const res = await fetch(`${API_BASE}/operations/analytics`);
   return res.json();
 }
+
+export async function fetchSpaServicesApi() {
+  const res = await fetch(`${API_BASE}/spa/services`);
+  return res.json();
+}
+
+export async function fetchTherapistsApi() {
+  const res = await fetch(`${API_BASE}/spa/therapists`);
+  return res.json();
+}
+
+export async function fetchSpaAppointmentsApi() {
+  const res = await fetch(`${API_BASE}/spa/appointments`);
+  return res.json();
+}
+
+export async function bookSpaAppointmentApi(data) {
+  const res = await fetch(`${API_BASE}/spa/appointments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export async function updateSpaAppointmentStatusApi(appointmentId, status) {
+  const res = await fetch(`${API_BASE}/spa/appointments/${appointmentId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  return res.json();
+}
