@@ -15,6 +15,9 @@ import {
   ArrowRight,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  Plus,
+  Minus,
   Clock,
   Wine,
   Waves,
@@ -27,11 +30,17 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [selectedBranch, setSelectedBranch] = useState(INITIAL_BRANCHES[0]);
   const [checkIn, setCheckIn] = useState('2026-11-10');
   const [checkOut, setCheckOut] = useState('2026-11-14');
-  const [guestCount, setGuestCount] = useState('2 Guests • 1 Room');
+  const [adultsCount, setAdultsCount] = useState(2);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [roomsCount, setRoomsCount] = useState(1);
+  const [isGuestPickerOpen, setIsGuestPickerOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+
+  const totalGuests = adultsCount + childrenCount;
+  const guestCountSummary = `${totalGuests} Guest${totalGuests > 1 ? 's' : ''} • ${roomsCount} Room${roomsCount > 1 ? 's' : ''}`;
   
   // Ambient Mouse Glow Position
   const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
@@ -301,13 +310,130 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                 />
               </div>
 
-              {/* Guests */}
-              <div className="p-3 bg-white border border-sand-300 rounded-xl flex items-center justify-between hover:border-noir-900 transition-colors">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Your Company</span>
-                  <span className="text-xs font-semibold text-noir-900">{guestCount}</span>
-                </div>
-                <Users className="w-4 h-4 text-sand-600" />
+              {/* Interactive Guests & Rooms Counter Popover */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsGuestPickerOpen(!isGuestPickerOpen)}
+                  className={`w-full p-3 bg-white border rounded-xl flex items-center justify-between text-left transition-all ${
+                    isGuestPickerOpen ? 'border-noir-900 shadow-sm ring-1 ring-noir-900' : 'border-sand-300 hover:border-noir-800'
+                  }`}
+                >
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-sand-600 font-semibold block">
+                      Guests &amp; Accommodations
+                    </span>
+                    <span className="text-xs font-semibold text-noir-900">
+                      {guestCountSummary}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sand-600">
+                    <Users className="w-4 h-4" />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isGuestPickerOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Popover Card */}
+                {isGuestPickerOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-sand-50 border border-sand-300 rounded-2xl shadow-xl z-30 space-y-3.5 animate-modal-card">
+                    {/* Adults Counter */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-semibold text-noir-900">Adults</div>
+                        <div className="text-[10px] text-sand-600">Ages 13 and above</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
+                          disabled={adultsCount <= 1}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-5 text-center text-xs font-bold text-noir-950 font-serif">
+                          {adultsCount}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAdultsCount(Math.min(10, adultsCount + 1))}
+                          disabled={adultsCount >= 10}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Children Counter */}
+                    <div className="flex items-center justify-between border-t border-sand-200 pt-3">
+                      <div>
+                        <div className="text-xs font-semibold text-noir-900">Children</div>
+                        <div className="text-[10px] text-sand-600">Ages 0 to 12</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
+                          disabled={childrenCount <= 0}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-5 text-center text-xs font-bold text-noir-950 font-serif">
+                          {childrenCount}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setChildrenCount(Math.min(6, childrenCount + 1))}
+                          disabled={childrenCount >= 6}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rooms Counter */}
+                    <div className="flex items-center justify-between border-t border-sand-200 pt-3">
+                      <div>
+                        <div className="text-xs font-semibold text-noir-900">Rooms</div>
+                        <div className="text-[10px] text-sand-600">Suites requested</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setRoomsCount(Math.max(1, roomsCount - 1))}
+                          disabled={roomsCount <= 1}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-5 text-center text-xs font-bold text-noir-950 font-serif">
+                          {roomsCount}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setRoomsCount(Math.min(5, roomsCount + 1))}
+                          disabled={roomsCount >= 5}
+                          className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-sand-200">
+                      <button
+                        type="button"
+                        onClick={() => setIsGuestPickerOpen(false)}
+                        className="w-full py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-colors shadow-sm"
+                      >
+                        Apply Company ({totalGuests} Guests)
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Find Room CTA Button with Glow */}
@@ -676,6 +802,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <div className="flex justify-between text-sand-700">
                 <span>Dates</span>
                 <span className="font-semibold text-noir-900">{checkIn} &rarr; {checkOut}</span>
+              </div>
+              <div className="flex justify-between text-sand-700">
+                <span>Accommodations</span>
+                <span className="font-semibold text-noir-900">{guestCountSummary}</span>
               </div>
               <div className="flex justify-between text-sand-700">
                 <span>Loyalty Reward</span>
