@@ -233,3 +233,72 @@ export const INITIAL_HOUSEKEEPING_TASKS = [
   { Task_ID: 'tsk-01', Room_ID: 'rm-301', Room_Number: '301', Assigned_Staff_ID: 'st-02', Task_Type: 'Deep Turnover Cleaning', Status: 'In Progress', Reported_Date: '2026-10-29' },
   { Task_ID: 'tsk-02', Room_ID: 'rm-102', Room_Number: '102', Assigned_Staff_ID: 'st-02', Task_Type: 'Linen Refresh & Restock', Status: 'Pending', Reported_Date: '2026-10-29' }
 ];
+
+export const INITIAL_EXPERIENCES = [
+  {
+    id: 'exp-1',
+    title: 'Vintage Cellar & Sommelier Tastings',
+    category: 'Epicurean & Wine',
+    tag: 'Sommelier Tour',
+    duration: '2.5 Hours',
+    groupSize: 'Up to 6 Guests',
+    price: '₹14,500 / person',
+    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=1000',
+    description: 'Descend into our 18th-century subterranean stone vault. Sample rare vintages guided by our head sommelier, paired with artisanal highland cheeses and cured delicacies.'
+  },
+  {
+    id: 'exp-2',
+    title: 'Ayrshire Twilight Catamaran Charter',
+    category: 'Maritime Adventure',
+    tag: 'Private Charter',
+    duration: '3.5 Hours',
+    groupSize: 'Private Group (1-8)',
+    price: '₹38,000 / charter',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=1000',
+    description: 'Set sail along the dramatic Ayrshire cliffs as the evening sun descends behind Ailsa Craig. Includes chilled Laurent-Perrier champagne, canapés, and heated deck blankets.'
+  },
+  {
+    id: 'exp-3',
+    title: 'The Chef’s Botanical Atrium',
+    category: 'Culinary Masterclass',
+    tag: 'Fine Dining',
+    duration: '3 Hours',
+    groupSize: '8 Guests Max',
+    price: '₹18,500 / person',
+    image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&q=80&w=1000',
+    description: 'An intimate seven-course tasting journey set inside our glass botanical conservatory. Ingredients are harvested daily from palace kitchen gardens and local coastal purveyors.'
+  },
+  {
+    id: 'exp-4',
+    title: 'Loch & Estate Falconry Walk',
+    category: 'Heritage Tradition',
+    tag: 'Estate Exclusive',
+    duration: '2 Hours',
+    groupSize: 'Up to 4 Guests',
+    price: '₹12,000 / person',
+    image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&q=80&w=1000',
+    description: 'Experience the noble art of falconry on the palace moors. Handle Harris hawks, golden falcons, and barn owls under the mentorship of our resident master falconer.'
+  },
+  {
+    id: 'exp-5',
+    title: 'Championship Seaside Links Golf',
+    category: 'Sport & Leisure',
+    tag: 'Palace Greens',
+    duration: '4 Hours',
+    groupSize: '1 - 4 Players',
+    price: '₹22,000 / round',
+    image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&q=80&w=1000',
+    description: 'Tee off along the rugged coastline with panoramic views of the Irish Sea. Includes private caddie service, Callaway club hire, and post-round clubhouse afternoon tea.'
+  },
+  {
+    id: 'exp-6',
+    title: 'Midnight Stargazing & Outdoor Firepit',
+    category: 'Night Sanctuary',
+    tag: 'Dark Sky Certified',
+    duration: '2 Hours',
+    groupSize: 'Couples / Small Groups',
+    price: '₹9,500 / couple',
+    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=1000',
+    description: 'Recline on shearling loungers by roaring stone firepits in Scotland’s darkest skies. Equipped with high-power brass telescopes, single-malt scotch, and hot spiced cocoa.'
+  }
+];

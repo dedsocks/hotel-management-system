@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { INITIAL_BRANCHES, INITIAL_ROOMS } from '../data/mockData';
+import { INITIAL_BRANCHES, INITIAL_ROOMS, INITIAL_EXPERIENCES } from '../data/mockData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import CustomSelect from './CustomSelect';
 import LuxuryDatePicker from './LuxuryDatePicker';
@@ -14,6 +14,8 @@ import {
   Compass,
   ArrowRight,
   ChevronRight,
+  ChevronLeft,
+  Clock,
   Wine,
   Waves,
   Sun,
@@ -33,6 +35,17 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   
   // Ambient Mouse Glow Position
   const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
+
+  // Experience Carousel Index
+  const [currentExpIndex, setCurrentExpIndex] = useState(0);
+
+  const prevExperience = () => {
+    setCurrentExpIndex((prev) => (prev === 0 ? INITIAL_EXPERIENCES.length - 1 : prev - 1));
+  };
+
+  const nextExperience = () => {
+    setCurrentExpIndex((prev) => (prev === INITIAL_EXPERIENCES.length - 1 ? 0 : prev + 1));
+  };
 
   // Scroll reveal container hook
   const pageContainerRef = useScrollReveal();
@@ -101,11 +114,17 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           <div className="flex items-center gap-3 shrink-0 flex-nowrap whitespace-nowrap">
             {currentGuest ? (
               <div className="flex items-center gap-2.5 bg-sand-50/90 border border-sand-300 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-shadow">
-                <img
-                  src={currentGuest.Avatar}
-                  alt={currentGuest.First_Name}
-                  className="w-7 h-7 rounded-full object-cover border border-sand-400"
-                />
+                {currentGuest.Avatar ? (
+                  <img
+                    src={currentGuest.Avatar}
+                    alt={currentGuest.First_Name}
+                    className="w-7 h-7 rounded-full object-cover border border-sand-400"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-noir-900 text-sand-50 font-serif font-bold text-xs flex items-center justify-center border border-sand-400 select-none">
+                    {(currentGuest.First_Name?.[0] || 'G').toUpperCase()}
+                  </div>
+                )}
                 <div className="text-left text-xs pr-1">
                   <div className="font-semibold text-noir-900 leading-tight">
                     {currentGuest.First_Name} {currentGuest.Last_Name}
@@ -398,6 +417,180 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* 5. Experiences & Curated Leisure Carousel */}
+      <section id="experiences" className="py-20 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pb-6 border-b border-sand-300 reveal-on-scroll">
+          <div>
+            <span className="text-xs uppercase tracking-[0.25em] text-sand-600 block mb-1">
+              Curated Itineraries
+            </span>
+            <h2 className="text-4xl md:text-5xl font-serif text-noir-950 font-normal">
+              Palace Experiences
+            </h2>
+          </div>
+          <div className="flex items-center gap-6">
+            <p className="text-xs md:text-sm text-sand-700 max-w-sm hidden sm:block">
+              From subterranean vintage cellars to twilight yacht charters, elevate your coastal retreat with bespoke adventures.
+            </p>
+            {/* Carousel Arrow Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={prevExperience}
+                aria-label="Previous Experience"
+                className="p-3 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={nextExperience}
+                aria-label="Next Experience"
+                className="p-3 rounded-full border border-sand-400 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 hover:border-noir-900 transition-all text-noir-900 shadow-sm active:scale-95"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Viewport Container */}
+        <div className="relative">
+          <div className="overflow-hidden py-4 -my-4">
+            <div
+              className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] gap-6"
+              style={{
+                transform: `translateX(-${currentExpIndex * (100 / (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1))}%)`
+              }}
+            >
+              {INITIAL_EXPERIENCES.map((exp, idx) => {
+                const isActive = idx === currentExpIndex;
+                return (
+                  <div
+                    key={exp.id}
+                    className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 group select-none"
+                  >
+                    <div className="bg-sand-50 rounded-3xl overflow-hidden border border-sand-300 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col h-full justify-between">
+                      <div>
+                        {/* Experience Card Image Header */}
+                        <div className="h-64 overflow-hidden relative">
+                          <img
+                            src={exp.image}
+                            alt={exp.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-noir-950/60 via-transparent to-transparent" />
+                          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                            <span className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1 rounded-full bg-sand-50/95 text-noir-900 shadow-sm backdrop-blur-sm border border-sand-200">
+                              {exp.tag}
+                            </span>
+                          </div>
+                          <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-sand-100 text-xs font-medium">
+                            <span className="flex items-center gap-1.5 drop-shadow-sm">
+                              <Clock className="w-3.5 h-3.5 text-accent-gold" /> {exp.duration}
+                            </span>
+                            <span className="flex items-center gap-1.5 drop-shadow-sm">
+                              <Users className="w-3.5 h-3.5 text-accent-gold" /> {exp.groupSize}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Experience Card Body */}
+                        <div className="p-6">
+                          <div className="text-[10px] uppercase tracking-widest text-accent-bronze font-semibold mb-1">
+                            {exp.category}
+                          </div>
+                          <h3 className="text-xl font-serif font-medium text-noir-950 mb-2 group-hover:text-accent-bronze transition-colors line-clamp-1">
+                            {exp.title}
+                          </h3>
+                          <p className="text-xs text-sand-700 leading-relaxed line-clamp-3">
+                            {exp.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="px-6 pb-6 pt-3 border-t border-sand-200/70 flex items-center justify-between">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider text-sand-600">Reserved Rate</div>
+                          <div className="text-sm font-serif font-semibold text-noir-950">{exp.price}</div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (!currentGuest) {
+                              onOpenAuth('register');
+                            } else {
+                              alert(`Inquiry logged for: ${exp.title}. Concierge will contact you.`);
+                            }
+                          }}
+                          className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 text-[11px] font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 group/btn"
+                        >
+                          <span>Reserve</span>
+                          <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Carousel Pagination Indicator Dots */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            {INITIAL_EXPERIENCES.map((_, dotIdx) => (
+              <button
+                key={dotIdx}
+                onClick={() => setCurrentExpIndex(dotIdx)}
+                aria-label={`Go to slide ${dotIdx + 1}`}
+                className={`transition-all duration-300 rounded-full h-1.5 ${
+                  currentExpIndex === dotIdx 
+                    ? 'w-8 bg-noir-900' 
+                    : 'w-2 bg-sand-300 hover:bg-sand-400'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Spa & Wellness Sanctuary */}
+      <section id="wellness" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="bg-sand-200/50 rounded-3xl border border-sand-300 p-8 md:p-12 overflow-hidden relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7 space-y-4">
+              <span className="text-xs uppercase tracking-[0.25em] text-accent-gold font-semibold block">
+                Holistic Restoration
+              </span>
+              <h2 className="text-3xl md:text-5xl font-serif text-noir-950 font-normal">
+                The Palace Bathhouse &amp; Spa
+              </h2>
+              <p className="text-xs md:text-sm text-sand-700 leading-relaxed max-w-xl">
+                Immerse yourself in mineral thermal baths, salt floatation therapy, and bespoke aromatic massages performed by licensed master therapists.
+              </p>
+              <div className="pt-2 flex flex-wrap gap-4 text-xs font-semibold text-noir-900">
+                <span className="px-3.5 py-1.5 rounded-full bg-sand-50 border border-sand-300">
+                  Hydrotherapy Circuit
+                </span>
+                <span className="px-3.5 py-1.5 rounded-full bg-sand-50 border border-sand-300">
+                  Deep Tissue &amp; Hot Stone
+                </span>
+                <span className="px-3.5 py-1.5 rounded-full bg-sand-50 border border-sand-300">
+                  Herbal Cedar Steam
+                </span>
+              </div>
+            </div>
+            <div className="lg:col-span-5">
+              <div className="rounded-2xl overflow-hidden border border-sand-300 shadow-xl group">
+                <img
+                  src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800"
+                  alt="Spa Therapy"
+                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
