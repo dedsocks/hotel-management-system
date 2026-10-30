@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { INITIAL_BRANCHES, INITIAL_ROOMS, INITIAL_EXPERIENCES } from '../data/mockData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -34,6 +34,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [childrenCount, setChildrenCount] = useState(0);
   const [roomsCount, setRoomsCount] = useState(1);
   const [isGuestPickerOpen, setIsGuestPickerOpen] = useState(false);
+  const guestPickerRef = useRef(null);
+
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -41,6 +43,18 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
   const totalGuests = adultsCount + childrenCount;
   const guestCountSummary = `${totalGuests} Guest${totalGuests > 1 ? 's' : ''} • ${roomsCount} Room${roomsCount > 1 ? 's' : ''}`;
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (guestPickerRef.current && !guestPickerRef.current.contains(e.target)) {
+        setIsGuestPickerOpen(false);
+      }
+    };
+    if (isGuestPickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isGuestPickerOpen]);
   
   // Ambient Mouse Glow Position
   const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
@@ -266,7 +280,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           {/* Right Floating Reservation Widget with Staggered Smooth Entrance */}
           <div 
             id="booking-bar" 
-            className="animate-hero-widget lg:col-span-5 bg-[#FDFBF7] rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10 relative overflow-hidden min-h-[460px] flex flex-col justify-between"
+            className="animate-hero-widget lg:col-span-5 bg-[#FDFBF7] rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10 relative overflow-visible min-h-[460px] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between pb-4 border-b border-sand-300">
               <div>
@@ -311,7 +325,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               </div>
 
               {/* Interactive Guests & Rooms Counter Popover */}
-              <div className="relative">
+              <div className="relative" ref={guestPickerRef}>
                 <button
                   type="button"
                   onClick={() => setIsGuestPickerOpen(!isGuestPickerOpen)}
@@ -335,7 +349,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
                 {/* Popover Card */}
                 {isGuestPickerOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-sand-50 border border-sand-300 rounded-2xl shadow-xl z-30 space-y-3.5 animate-modal-card">
+                  <div className="absolute top-full left-0 right-0 mt-2 p-5 bg-[#FAF7F0] border border-sand-400/80 rounded-2xl shadow-2xl z-50 space-y-4 animate-modal-card">
                     {/* Adults Counter */}
                     <div className="flex items-center justify-between">
                       <div>
