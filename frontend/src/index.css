@@ -168,9 +168,32 @@
 }
 
 .animate-calendar-expand {
-  animation: calendarExpandFromButton 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: calendarExpandFromButton 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: center 55%;
   will-change: transform, opacity;
+}
+
+@keyframes calendarShrinkToButton {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    border-radius: 1.5rem;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.65) translateY(40px);
+    border-radius: 2rem;
+  }
+}
+
+.animate-calendar-shrink {
+  animation: calendarShrinkToButton 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center 55%;
+  will-change: transform, opacity;
+  pointer-events: none;
 }
 
 @keyframes luxuryFadeIn {

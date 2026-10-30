@@ -16,12 +16,24 @@ export default function LuxuryDatePicker({
   onToggleExpand
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const containerRef = useRef(null);
 
   const isOpen = isExpanded !== undefined ? isExpanded : internalOpen;
-  const setIsOpen = (val) => {
-    if (onToggleExpand) onToggleExpand(val);
-    else setInternalOpen(val);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      if (onToggleExpand) onToggleExpand(false);
+      else setInternalOpen(false);
+    }, 260);
+  };
+
+  const handleOpen = () => {
+    setIsClosing(false);
+    if (onToggleExpand) onToggleExpand(true);
+    else setInternalOpen(true);
   };
 
   // Parsing dates
@@ -94,7 +106,7 @@ export default function LuxuryDatePicker({
       } else {
         onDatesChange(checkInDate, clickedStr);
         setSelectingStep('checkIn');
-        setIsOpen(false);
+        handleClose();
       }
     }
   };
@@ -113,7 +125,7 @@ export default function LuxuryDatePicker({
     <div className="w-full" ref={containerRef}>
       {/* 1. Collapsed State: Editorial Dual Cards */}
       <div 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
         className="grid grid-cols-2 gap-3 cursor-pointer group"
       >
         <div className={`p-3.5 bg-white border rounded-2xl transition-all duration-300 hover:border-noir-900 shadow-sm ${
@@ -149,9 +161,11 @@ export default function LuxuryDatePicker({
         </div>
       </div>
 
-      {/* 2. Expanded State: Solid Opaque Calendar Expanding Smoothly Over Widget */}
-      {isOpen && (
-        <div className="absolute inset-0 z-30 bg-[#FDFBF7] rounded-3xl p-6 sm:p-7 flex flex-col justify-between text-noir-900 shadow-2xl animate-calendar-expand">
+      {/* 2. Expanded State: Solid Opaque Calendar Expanding & Shrinking Smoothly Over Widget */}
+      {(isOpen || isClosing) && (
+        <div className={`absolute inset-0 z-30 bg-[#FDFBF7] rounded-3xl p-6 sm:p-7 flex flex-col justify-between text-noir-900 shadow-2xl ${
+          isClosing ? 'animate-calendar-shrink' : 'animate-calendar-expand'
+        }`}>
           {/* Header Month & Navigation with Close Button */}
           <div>
             <div className="flex items-center justify-between pb-3.5 border-b border-sand-300">
@@ -185,7 +199,7 @@ export default function LuxuryDatePicker({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleClose}
                   className="p-2 rounded-full border border-sand-300 hover:border-noir-900 bg-white text-sand-700 hover:text-noir-950 transition-all shadow-sm active:scale-95"
                   title="Close and shrink calendar"
                 >
@@ -273,7 +287,7 @@ export default function LuxuryDatePicker({
             </div>
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               className="px-4 py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-sm active:scale-95"
             >
               Done &rarr;
