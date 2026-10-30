@@ -123,11 +123,55 @@ export default function LoginView({ onBackToPublic }) {
 
           <button
             type="submit"
-            className="w-full mt-2 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 font-medium rounded-lg text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-[0.99]"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 font-medium rounded-lg text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-[0.99] disabled:opacity-50"
           >
-            Authenticate Staff <ArrowRight className="w-4 h-4" />
+            {isSubmitting ? 'Authenticating...' : (
+              <>
+                Authenticate Staff <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
+
+        {/* 1-Click Demo Login Credentials */}
+        <div className="mt-6 pt-5 border-t border-sand-200">
+          <div className="text-[10px] uppercase tracking-wider text-sand-600 font-semibold mb-2 text-center">
+            Quick-Fill Role Credentials
+          </div>
+          <div className="grid grid-cols-3 gap-1.5 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('manager@grandgirvanpalace.com');
+                setPassword('password123');
+              }}
+              className="px-2 py-1.5 rounded-lg bg-sand-200 hover:bg-sand-300 text-noir-900 text-[11px] font-semibold border border-sand-300 transition-colors"
+            >
+              Manager
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('reception@grandgirvanpalace.com');
+                setPassword('password123');
+              }}
+              className="px-2 py-1.5 rounded-lg bg-sand-200 hover:bg-sand-300 text-noir-900 text-[11px] font-semibold border border-sand-300 transition-colors"
+            >
+              Receptionist
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('therapist@grandgirvanpalace.com');
+                setPassword('password123');
+              }}
+              className="px-2 py-1.5 rounded-lg bg-sand-200 hover:bg-sand-300 text-noir-900 text-[11px] font-semibold border border-sand-300 transition-colors"
+            >
+              Therapist
+            </button>
+          </div>
+        </div>
       </div>
 
       <p className="mt-8 text-xs text-sand-300/80 tracking-wider">
