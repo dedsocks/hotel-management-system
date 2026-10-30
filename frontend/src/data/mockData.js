@@ -276,7 +276,7 @@ export const INITIAL_EXPERIENCES = [
     duration: '2 Hours',
     groupSize: 'Up to 4 Guests',
     price: '₹12,000 / person',
-    image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&q=80&w=1000',
+    image: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?auto=format&fit=crop&q=80&w=1000',
     description: 'Handle trained Harris hawks and golden falcons across palace moors with our resident falconer.'
   },
   {

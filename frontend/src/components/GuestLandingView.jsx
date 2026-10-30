@@ -41,6 +41,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
 
+  // Experience inquiry modal state
+  const [selectedExp, setSelectedExp] = useState(null);
+  const [expSuccess, setExpSuccess] = useState(false);
+
   const totalGuests = adultsCount + childrenCount;
   const guestCountSummary = `${totalGuests} Guest${totalGuests > 1 ? 's' : ''} • ${roomsCount} Room${roomsCount > 1 ? 's' : ''}`;
 
@@ -712,7 +716,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                             if (!currentGuest) {
                               onOpenAuth('register');
                             } else {
-                              alert(`Inquiry logged for: ${exp.title}. Concierge will contact you.`);
+                              setSelectedExp(exp);
+                              setExpSuccess(false);
                             }
                           }}
                           className="px-3.5 py-1.5 bg-noir-900 hover:bg-noir-950 text-sand-50 text-[11px] font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 group/btn"
@@ -849,6 +854,96 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                   className="flex-1 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95"
                 >
                   Confirm Reservation
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 5b. Luxury Experience Inquiry / Reservation Modal */}
+      {selectedExp && (
+        <div 
+          onClick={() => setSelectedExp(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/75 backdrop-blur-sm animate-modal-backdrop"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-7 relative animate-modal-card"
+          >
+            <div className="text-center mb-4">
+              <span className="text-[10px] uppercase tracking-widest text-accent-bronze font-semibold block">
+                Concierge Experience Booking
+              </span>
+              <h3 className="text-2xl font-serif text-noir-950 font-medium mt-1">
+                {selectedExp.title}
+              </h3>
+              <p className="text-xs text-sand-600 mt-1">
+                Arranged exclusively for guests at {selectedBranch.Location_Name}.
+              </p>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden border border-sand-300 mb-5 relative shadow-sm">
+              <img src={selectedExp.image} alt={selectedExp.title} className="w-full h-44 object-cover" />
+              <div className="absolute top-3 left-3">
+                <span className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-sand-50/95 text-noir-900 shadow-sm backdrop-blur-sm border border-sand-200">
+                  {selectedExp.tag}
+                </span>
+              </div>
+              <div className="p-3 bg-sand-100 flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-sand-700">
+                  <Clock className="w-3.5 h-3.5 text-accent-gold" /> {selectedExp.duration}
+                </span>
+                <span className="flex items-center gap-1.5 text-sand-700">
+                  <Users className="w-3.5 h-3.5 text-accent-gold" /> {selectedExp.groupSize}
+                </span>
+                <span className="font-serif font-semibold text-noir-950">
+                  {selectedExp.price}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs border-y border-sand-200 py-3 mb-5">
+              <div className="flex justify-between text-sand-700">
+                <span>Guest Name</span>
+                <span className="font-semibold text-noir-900">{currentGuest?.First_Name} {currentGuest?.Last_Name}</span>
+              </div>
+              <div className="flex justify-between text-sand-700">
+                <span>Scheduled Party</span>
+                <span className="font-semibold text-noir-900">{adultsCount} Adult{adultsCount > 1 ? 's' : ''}{childrenCount > 0 ? `, ${childrenCount} Child${childrenCount > 1 ? 'ren' : ''}` : ''}</span>
+              </div>
+              <div className="flex justify-between text-sand-700">
+                <span>Stay Window</span>
+                <span className="font-semibold text-noir-900">{checkIn} &rarr; {checkOut}</span>
+              </div>
+            </div>
+
+            {expSuccess ? (
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs text-center font-medium flex items-center justify-center gap-2">
+                <Check className="w-4 h-4" /> Experience Reserved! Our concierge desk has logged your itinerary.
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedExp(null)}
+                  className="flex-1 py-2.5 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpSuccess(true);
+                    setTimeout(() => {
+                      setExpSuccess(false);
+                      setSelectedExp(null);
+                    }, 2200);
+                  }}
+                  className="flex-1 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-accent-gold" />
+                  <span>Confirm Itinerary</span>
                 </button>
               </div>
             )}
