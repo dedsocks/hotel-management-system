@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building, 
   CalendarCheck2, 
@@ -20,13 +20,48 @@ import {
   INITIAL_HOUSEKEEPING_TASKS,
   INITIAL_BRANCHES
 } from '../data/mockData';
+import { 
+  fetchRoomsApi, 
+  fetchReservationsApi, 
+  fetchHousekeepingTasksApi, 
+  fetchAnalyticsApi 
+} from '../api/hotelApi';
 
 export default function OverviewDashboard({ onNavigateTab }) {
   const [selectedBranchId, setSelectedBranchId] = useState('b-01');
   const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
   const [rooms, setRooms] = useState(INITIAL_ROOMS);
   const [tasks, setTasks] = useState(INITIAL_HOUSEKEEPING_TASKS);
+  const [analytics, setAnalytics] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [rms, resvs, tsks, anlt] = await Promise.allSettled([
+          fetchRoomsApi(),
+          fetchReservationsApi(),
+          fetchHousekeepingTasksApi(),
+          fetchAnalyticsApi()
+        ]);
+        if (rms.status === 'fulfilled' && Array.isArray(rms.value) && rms.value.length > 0) {
+          setRooms(rms.value);
+        }
+        if (resvs.status === 'fulfilled' && Array.isArray(resvs.value) && resvs.value.length > 0) {
+          setReservations(resvs.value);
+        }
+        if (tsks.status === 'fulfilled' && Array.isArray(tsks.value) && tsks.value.length > 0) {
+          setTasks(tsks.value);
+        }
+        if (anlt.status === 'fulfilled' && anlt.value?.totalRooms) {
+          setAnalytics(anlt.value);
+        }
+      } catch (err) {
+        console.warn('Backend live fetch error, using local state:', err);
+      }
+    }
+    loadData();
+  }, []);
 
   const currentBranch = INITIAL_BRANCHES.find(b => b.Branch_ID === selectedBranchId) || INITIAL_BRANCHES[0];
 

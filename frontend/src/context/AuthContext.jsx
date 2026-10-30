@@ -22,7 +22,23 @@ export function AuthProvider({ children }) {
   });
 
   // Staff Login
-  const loginStaff = (email, password) => {
+  const loginStaff = async (email, password) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        setCurrentStaff(data.user);
+        localStorage.setItem('mv_staff_user', JSON.stringify(data.user));
+        return { success: true };
+      }
+    } catch {
+      // fallback to mock for safety
+    }
+
     const found = INITIAL_STAFF.find(u => u.Email.toLowerCase() === email.trim().toLowerCase());
     if (found) {
       setCurrentStaff(found);
@@ -38,7 +54,23 @@ export function AuthProvider({ children }) {
   };
 
   // Customer Guest Login
-  const loginGuest = (email, password) => {
+  const loginGuest = async (email, password) => {
+    try {
+      const res = await fetch('/api/auth/guest-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        setCurrentGuest(data.user);
+        localStorage.setItem('mv_guest_user', JSON.stringify(data.user));
+        return { success: true };
+      }
+    } catch {
+      // fallback to mock
+    }
+
     const found = guests.find(g => g.Email.toLowerCase() === email.trim().toLowerCase());
     if (found && (found.Password === password || password === 'password123')) {
       setCurrentGuest(found);
@@ -49,7 +81,23 @@ export function AuthProvider({ children }) {
   };
 
   // Customer Guest Registration
-  const registerGuest = ({ firstName, lastName, email, phone, password }) => {
+  const registerGuest = async ({ firstName, lastName, email, phone, password }) => {
+    try {
+      const res = await fetch('/api/auth/guest-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, phone, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        setCurrentGuest(data.user);
+        localStorage.setItem('mv_guest_user', JSON.stringify(data.user));
+        return { success: true, guest: data.user };
+      }
+    } catch {
+      // fallback
+    }
+
     const exists = guests.some(g => g.Email.toLowerCase() === email.trim().toLowerCase());
     if (exists) {
       return { success: false, error: 'An account with this email already exists.' };
@@ -62,7 +110,7 @@ export function AuthProvider({ children }) {
       Email: email.trim().toLowerCase(),
       Phone: phone.trim(),
       Password: password,
-      Loyalty_Points: 100, // 100 welcome bonus points
+      Loyalty_Points: 100,
       Loyalty_Tier: 'Bronze',
       Account_Status: 'Active',
       Special_Requests: '',
@@ -72,8 +120,6 @@ export function AuthProvider({ children }) {
     const updated = [newGuest, ...guests];
     setGuests(updated);
     localStorage.setItem('mv_guests_list', JSON.stringify(updated));
-
-    // Auto-login upon registration
     setCurrentGuest(newGuest);
     localStorage.setItem('mv_guest_user', JSON.stringify(newGuest));
     return { success: true, guest: newGuest };
