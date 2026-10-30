@@ -26,6 +26,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [checkIn, setCheckIn] = useState('2026-11-10');
   const [checkOut, setCheckOut] = useState('2026-11-14');
   const [guestCount, setGuestCount] = useState('2 Guests • 1 Room');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -192,7 +193,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           {/* Right Floating Reservation Widget with Staggered Smooth Entrance */}
           <div 
             id="booking-bar" 
-            className="animate-hero-widget lg:col-span-5 bg-sand-50/95 backdrop-blur-xl rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10"
+            className="animate-hero-widget lg:col-span-5 bg-sand-50/98 rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10 relative overflow-hidden min-h-[460px] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between pb-4 border-b border-sand-300">
               <div>
@@ -231,6 +232,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                     setCheckIn(inDate);
                     if (outDate) setCheckOut(outDate);
                   }}
+                  isExpanded={isCalendarOpen}
+                  onToggleExpand={setIsCalendarOpen}
                 />
               </div>
 
