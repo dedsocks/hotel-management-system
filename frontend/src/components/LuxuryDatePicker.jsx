@@ -149,9 +149,9 @@ export default function LuxuryDatePicker({
         </div>
       </div>
 
-      {/* 2. Expanded State: Solid Opaque Calendar Expanding Over Widget */}
+      {/* 2. Expanded State: Solid Opaque Calendar Expanding Smoothly Over Widget */}
       {isOpen && (
-        <div className="absolute inset-0 z-30 bg-[#FDFBF7] rounded-3xl p-6 sm:p-7 flex flex-col justify-between text-noir-900 shadow-2xl transition-all duration-300">
+        <div className="absolute inset-0 z-30 bg-[#FDFBF7] rounded-3xl p-6 sm:p-7 flex flex-col justify-between text-noir-900 shadow-2xl animate-calendar-expand">
           {/* Header Month & Navigation with Close Button */}
           <div>
             <div className="flex items-center justify-between pb-3.5 border-b border-sand-300">

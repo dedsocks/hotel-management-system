@@ -193,7 +193,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
           {/* Right Floating Reservation Widget with Staggered Smooth Entrance */}
           <div 
             id="booking-bar" 
-            className="animate-hero-widget lg:col-span-5 bg-sand-50/98 rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10 relative overflow-hidden min-h-[460px] flex flex-col justify-between"
+            className="animate-hero-widget lg:col-span-5 bg-[#FDFBF7] rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-7 text-noir-900 transition-all hover:shadow-accent-gold/10 relative overflow-hidden min-h-[460px] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between pb-4 border-b border-sand-300">
               <div>
