@@ -41,33 +41,35 @@ function AppContent() {
           onExitToPublic={() => setViewMode('guest')}
         />
         <main className="flex-1 overflow-y-auto">
-          {currentStaffTab === 'overview' && (
-            <OverviewDashboard onNavigateTab={setCurrentStaffTab} />
-          )}
-          {currentStaffTab === 'staff' && (
-            <StaffDirectoryView />
-          )}
-          {(currentStaffTab === 'reservations' || currentStaffTab === 'rooms' || currentStaffTab === 'pos' || currentStaffTab === 'billing') && (
-            <div className="p-12 max-w-4xl mx-auto text-center space-y-4">
-              <div className="inline-flex p-4 rounded-2xl bg-sand-200/60 border border-sand-300 text-accent-gold mb-2">
-                <Sparkles className="w-8 h-8" />
+          <div key={currentStaffTab} className="animate-fade-in transition-all duration-300">
+            {currentStaffTab === 'overview' && (
+              <OverviewDashboard onNavigateTab={setCurrentStaffTab} />
+            )}
+            {currentStaffTab === 'staff' && (
+              <StaffDirectoryView />
+            )}
+            {(currentStaffTab === 'reservations' || currentStaffTab === 'rooms' || currentStaffTab === 'pos' || currentStaffTab === 'billing') && (
+              <div className="p-12 max-w-4xl mx-auto text-center space-y-4">
+                <div className="inline-flex p-4 rounded-2xl bg-sand-200/60 border border-sand-300 text-accent-gold mb-2">
+                  <Sparkles className="w-8 h-8" />
+                </div>
+                <h2 className="text-3xl font-serif text-noir-950 font-normal capitalize">
+                  {currentStaffTab} Module
+                </h2>
+                <p className="text-sm text-sand-700 max-w-lg mx-auto">
+                  Module active and connected to schema tables.
+                </p>
+                <div className="pt-4">
+                  <button
+                    onClick={() => setCurrentStaffTab('overview')}
+                    className="px-5 py-2.5 bg-noir-900 text-sand-50 rounded-lg text-xs uppercase tracking-wider font-medium hover:bg-noir-950 transition-colors shadow-sm"
+                  >
+                    Back to Dashboard
+                  </button>
+                </div>
               </div>
-              <h2 className="text-3xl font-serif text-noir-950 font-normal capitalize">
-                {currentStaffTab} Module
-              </h2>
-              <p className="text-sm text-sand-700 max-w-lg mx-auto">
-                Module active and connected to schema tables.
-              </p>
-              <div className="pt-4">
-                <button
-                  onClick={() => setCurrentStaffTab('overview')}
-                  className="px-5 py-2.5 bg-noir-900 text-sand-50 rounded-lg text-xs uppercase tracking-wider font-medium hover:bg-noir-950 transition-colors shadow-sm"
-                >
-                  Back to Dashboard
-                </button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </main>
       </div>
     );
