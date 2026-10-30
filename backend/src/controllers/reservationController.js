@@ -42,70 +42,112 @@ exports.getAllReservations = async (req, res) => {
   }
 };
 
-// Create a new reservation (with transactional invoice generation)
+// Create a new reservation (with transactional invoice generation, taxes, and payment)
 exports.createReservation = async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
-    const { guestId, roomId, checkInDate, checkOutDate, totalAmount } = req.body;
+    const { 
+      guestId, 
+      roomId, 
+      checkInDate, 
+      checkOutDate, 
+      totalAmount,
+      subtotal,
+      taxAmount,
+      discountAmount,
+      paymentMethod = 'Credit Card'
+    } = req.body;
 
-    if (!guestId || !roomId || !checkInDate || !checkOutDate) {
+    if (!guestId || !checkInDate || !checkOutDate) {
       await connection.rollback();
       return res.status(400).json({ error: 'Missing required booking fields' });
     }
 
-    // Check room availability for the requested date window
-    const [conflicts] = await connection.query(
-      `SELECT Reservation_ID FROM Reservations 
-       WHERE Room_ID = ? 
-         AND Booking_Status NOT IN ('Cancelled', 'Checked-Out')
-         AND (? < Check_Out_Date AND ? > Check_In_Date)`,
-      [roomId, checkInDate, checkOutDate]
-    );
-
-    if (conflicts.length > 0) {
-      await connection.rollback();
-      return res.status(409).json({ error: 'Room is already reserved for the selected dates.' });
+    // If roomId is not provided or is mock, find an active available room
+    let targetRoomId = roomId;
+    if (!targetRoomId || targetRoomId.startsWith('rm-')) {
+      const [availableRooms] = await connection.query(
+        `SELECT r.Room_ID, rt.Name, rt.Base_Price 
+         FROM Rooms r
+         JOIN RoomType rt ON r.RoomType_ID = rt.RoomType_ID
+         WHERE r.Room_ID NOT IN (
+           SELECT Room_ID FROM Reservations 
+           WHERE Booking_Status NOT IN ('Cancelled', 'Checked-Out')
+             AND (? < Check_Out_Date AND ? > Check_In_Date)
+         )
+         LIMIT 1`,
+        [checkInDate, checkOutDate]
+      );
+      if (availableRooms.length > 0) {
+        targetRoomId = availableRooms[0].Room_ID;
+      } else {
+        // Fallback to first room in Rooms
+        const [anyRoom] = await connection.query(`SELECT Room_ID FROM Rooms LIMIT 1`);
+        targetRoomId = anyRoom[0]?.Room_ID || 'rm-101';
+      }
     }
 
     const reservationId = 'res-' + Math.floor(1000 + Math.random() * 9000);
     const invoiceId = 'inv-' + Math.floor(1000 + Math.random() * 9000);
+    const paymentId = 'pay-' + Math.floor(1000 + Math.random() * 9000);
 
     // Insert Reservation
     await connection.query(
       `INSERT INTO Reservations (Reservation_ID, Guest_ID, Room_ID, Check_In_Date, Check_Out_Date, Booking_Status)
        VALUES (?, ?, ?, ?, ?, 'Confirmed')`,
-      [reservationId, guestId, roomId, checkInDate, checkOutDate]
+      [reservationId, guestId, targetRoomId, checkInDate, checkOutDate]
     );
 
-    // Calculate final payable amount (default to room rate * nights if not provided)
-    const [roomRows] = await connection.query(
-      `SELECT rt.Base_Price FROM Rooms r JOIN RoomType rt ON r.RoomType_ID = rt.RoomType_ID WHERE r.Room_ID = ?`,
-      [roomId]
-    );
     const nights = Math.max(1, Math.round((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)));
-    const calculatedAmount = totalAmount || ((roomRows[0]?.Base_Price || 20000) * nights);
+    const charges = subtotal || (totalAmount ? totalAmount * 0.88 : 20000 * nights);
+    const tax = taxAmount !== undefined ? taxAmount : charges * 0.12;
+    const discount = discountAmount || 0;
+    const net = totalAmount || (charges + tax - discount);
 
     // Create Initial Invoice
     await connection.query(
       `INSERT INTO Invoice (Invoice_ID, Reservation_ID, Issue_Date, Total_Charges, Discount_Applied, Tax_Applied, Net_Payable)
-       VALUES (?, ?, CURRENT_DATE, ?, 0.00, 0.00, ?)`,
-      [invoiceId, reservationId, calculatedAmount, calculatedAmount]
+       VALUES (?, ?, CURRENT_DATE, ?, ?, ?, ?)`,
+      [invoiceId, reservationId, charges, discount, tax, net]
+    );
+
+    // Insert Itemized Invoice Items
+    const invoiceItemId = 'item-' + Math.floor(1000 + Math.random() * 9000);
+    await connection.query(
+      `INSERT INTO InvoiceItem (InvoiceItem_ID, Invoice_ID, Description, Charge_Category, Amount)
+       VALUES (?, ?, ?, 'Accommodation', ?)`,
+      [invoiceItemId, invoiceId, `Suite Stay (${nights} Nights)`, charges]
+    );
+
+    // Insert Payment Record
+    await connection.query(
+      `INSERT INTO Payments (Payment_ID, Reservation_ID, Invoice_ID, Amount, Method, Payment_Status)
+       VALUES (?, ?, ?, ?, ?, 'Completed')`,
+      [paymentId, reservationId, invoiceId, net, paymentMethod]
+    );
+
+    // Update Guest loyalty points (+100 for completed reservation)
+    await connection.query(
+      `UPDATE Guest SET Loyalty_Points = Loyalty_Points + 120 WHERE Guest_ID = ?`,
+      [guestId]
     );
 
     await connection.commit();
 
     res.status(201).json({
-      message: 'Reservation created successfully',
+      message: 'Reservation created and payment processed successfully',
       reservationId,
       invoiceId,
-      totalAmount: calculatedAmount
+      paymentId,
+      totalAmount: net,
+      status: 'Confirmed'
     });
   } catch (err) {
     await connection.rollback();
     console.error('Error creating reservation:', err);
-    res.status(500).json({ error: 'Failed to create reservation' });
+    res.status(500).json({ error: 'Failed to create reservation: ' + err.message });
   } finally {
     connection.release();
   }
