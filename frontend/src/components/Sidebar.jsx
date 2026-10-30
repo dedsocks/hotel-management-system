@@ -89,11 +89,17 @@ export default function Sidebar({ currentTab, onSelectTab, onExitToPublic }) {
         )}
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
-            <img
-              src={currentStaff?.Avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
-              alt={currentStaff?.First_Name}
-              className="w-9 h-9 rounded-full object-cover border border-sand-400"
-            />
+            {currentStaff?.Avatar ? (
+              <img
+                src={currentStaff.Avatar}
+                alt={currentStaff?.First_Name}
+                className="w-9 h-9 rounded-full object-cover border border-sand-400"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-noir-900 text-sand-50 font-serif font-bold text-sm flex items-center justify-center border border-sand-400 select-none">
+                {(currentStaff?.First_Name?.[0] || 'S').toUpperCase()}
+              </div>
+            )}
             <div className="truncate">
               <div className="text-xs font-semibold text-noir-900 truncate">
                 {currentStaff?.First_Name} {currentStaff?.Last_Name}
