@@ -27,7 +27,7 @@ export default function LuxuryDatePicker({
       setIsClosing(false);
       if (onToggleExpand) onToggleExpand(false);
       else setInternalOpen(false);
-    }, 260);
+    }, 240);
   };
 
   const handleOpen = () => {

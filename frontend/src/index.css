@@ -154,22 +154,17 @@
 @keyframes calendarExpandFromButton {
   0% {
     opacity: 0;
-    transform: scale(0.65) translateY(40px);
-    border-radius: 2rem;
-  }
-  60% {
-    opacity: 1;
+    transform: scale(0.92) translateY(12px);
   }
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
-    border-radius: 1.5rem;
   }
 }
 
 .animate-calendar-expand {
-  animation: calendarExpandFromButton 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: center 55%;
+  animation: calendarExpandFromButton 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  transform-origin: center 50%;
   will-change: transform, opacity;
 }
 
@@ -177,21 +172,16 @@
   0% {
     opacity: 1;
     transform: scale(1) translateY(0);
-    border-radius: 1.5rem;
-  }
-  40% {
-    opacity: 0.8;
   }
   100% {
     opacity: 0;
-    transform: scale(0.65) translateY(40px);
-    border-radius: 2rem;
+    transform: scale(0.94) translateY(8px);
   }
 }
 
 .animate-calendar-shrink {
-  animation: calendarShrinkToButton 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: center 55%;
+  animation: calendarShrinkToButton 0.24s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+  transform-origin: center 50%;
   will-change: transform, opacity;
   pointer-events: none;
 }
