@@ -36,34 +36,54 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   // Ambient Mouse Glow Position
   const [mousePos, setMousePos] = useState({ x: -500, y: -500 });
 
-  // Experience Carousel Responsive Visible Items & Sliding Index
+  // Experience Infinite Carousel Configuration
   const [itemsPerView, setItemsPerView] = useState(3);
-  const [currentExpIndex, setCurrentExpIndex] = useState(0);
+  // currentIndex starts at itemsPerView (the start of the real items)
+  const [currentExpIndex, setCurrentExpIndex] = useState(3);
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+
+  // Cloned items for infinite wrapping: [cloned tail, ...real, ...cloned head]
+  const extendedExperiences = [
+    ...INITIAL_EXPERIENCES.slice(-3),
+    ...INITIAL_EXPERIENCES,
+    ...INITIAL_EXPERIENCES.slice(0, 3)
+  ];
 
   useEffect(() => {
     const updateItemsPerView = () => {
-      if (window.innerWidth >= 1024) {
-        setItemsPerView(3);
-      } else if (window.innerWidth >= 640) {
-        setItemsPerView(2);
-      } else {
-        setItemsPerView(1);
-      }
+      const count = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+      setItemsPerView(count);
     };
     updateItemsPerView();
     window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
 
-  const maxExpIndex = Math.max(0, INITIAL_EXPERIENCES.length - itemsPerView);
-
   const prevExperience = () => {
-    setCurrentExpIndex((prev) => (prev <= 0 ? maxExpIndex : prev - 1));
+    setIsTransitionEnabled(true);
+    setCurrentExpIndex((prev) => prev - 1);
   };
 
   const nextExperience = () => {
-    setCurrentExpIndex((prev) => (prev >= maxExpIndex ? 0 : prev + 1));
+    setIsTransitionEnabled(true);
+    setCurrentExpIndex((prev) => prev + 1);
   };
+
+  const handleTransitionEnd = () => {
+    // If we moved before the real items
+    if (currentExpIndex < 3) {
+      setIsTransitionEnabled(false);
+      setCurrentExpIndex(INITIAL_EXPERIENCES.length + currentExpIndex);
+    } 
+    // If we moved past the real items
+    else if (currentExpIndex >= INITIAL_EXPERIENCES.length + 3) {
+      setIsTransitionEnabled(false);
+      setCurrentExpIndex(currentExpIndex - INITIAL_EXPERIENCES.length);
+    }
+  };
+
+  // Normalized active dot index (0 to INITIAL_EXPERIENCES.length - 1)
+  const activeDotIndex = ((currentExpIndex - 3) % INITIAL_EXPERIENCES.length + INITIAL_EXPERIENCES.length) % INITIAL_EXPERIENCES.length;
 
   // Scroll reveal container hook
   const pageContainerRef = useScrollReveal();
@@ -475,19 +495,27 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
         {/* Carousel Viewport Container */}
         <div className="relative">
-          <div className="overflow-hidden py-4 -my-4">
+          <div className="overflow-hidden px-1 py-4 -my-4 -mx-1">
             <div
-              className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] gap-6"
+              onTransitionEnd={handleTransitionEnd}
+              className={`flex gap-6 ${
+                isTransitionEnabled 
+                  ? 'transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]' 
+                  : 'transition-none'
+              }`}
               style={{
-                transform: `translateX(-${currentExpIndex * (100 / itemsPerView)}%)`
+                transform: `translateX(calc(-${currentExpIndex} * (100% + 1.5rem) / ${itemsPerView}))`
               }}
             >
-              {INITIAL_EXPERIENCES.map((exp, idx) => {
-                const isActive = idx === currentExpIndex;
+              {extendedExperiences.map((exp, idx) => {
+                const uniqueKey = `${exp.id}-${idx}`;
                 return (
                   <div
-                    key={exp.id}
-                    className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 group select-none"
+                    key={uniqueKey}
+                    style={{
+                      flex: `0 0 calc((100% - ${(itemsPerView - 1) * 1.5}rem) / ${itemsPerView})`
+                    }}
+                    className="shrink-0 group select-none"
                   >
                     <div className="bg-sand-50 rounded-3xl overflow-hidden border border-sand-300 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col h-full justify-between">
                       <div>
@@ -557,13 +585,16 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
           {/* Carousel Pagination Indicator Dots */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            {Array.from({ length: maxExpIndex + 1 }).map((_, dotIdx) => (
+            {INITIAL_EXPERIENCES.map((_, dotIdx) => (
               <button
                 key={dotIdx}
-                onClick={() => setCurrentExpIndex(dotIdx)}
+                onClick={() => {
+                  setIsTransitionEnabled(true);
+                  setCurrentExpIndex(dotIdx + 3);
+                }}
                 aria-label={`Go to slide ${dotIdx + 1}`}
                 className={`transition-all duration-300 rounded-full h-1.5 ${
-                  currentExpIndex === dotIdx 
+                  activeDotIndex === dotIdx 
                     ? 'w-8 bg-noir-900' 
                     : 'w-2 bg-sand-300 hover:bg-sand-400'
                 }`}
