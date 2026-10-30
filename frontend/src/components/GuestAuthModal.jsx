@@ -35,37 +35,53 @@ export default function GuestAuthModal({ isOpen, onClose, initialMode = 'login' 
     }, 200);
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   if (!isOpen) return null;
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const res = loginGuest(loginEmail, loginPassword);
-    if (res.success) {
-      handleAnimatedClose();
-    } else {
-      setError(res.error);
+    setIsSubmitting(true);
+    try {
+      const res = await loginGuest(loginEmail, loginPassword);
+      if (res?.success) {
+        handleAnimatedClose();
+      } else {
+        setError(res?.error || 'Failed to sign in.');
+      }
+    } catch (err) {
+      setError(err?.message || 'An error occurred during sign in.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!regFirstName || !regLastName || !regEmail || !regPhone || !regPassword) {
       setError('Please complete all fields to join.');
       return;
     }
-    const res = registerGuest({
-      firstName: regFirstName,
-      lastName: regLastName,
-      email: regEmail,
-      phone: regPhone,
-      password: regPassword
-    });
-    if (res.success) {
-      handleAnimatedClose();
-    } else {
-      setError(res.error);
+    setIsSubmitting(true);
+    try {
+      const res = await registerGuest({
+        firstName: regFirstName,
+        lastName: regLastName,
+        email: regEmail,
+        phone: regPhone,
+        password: regPassword
+      });
+      if (res?.success) {
+        handleAnimatedClose();
+      } else {
+        setError(res?.error || 'Registration failed.');
+      }
+    } catch (err) {
+      setError(err?.message || 'An error occurred during registration.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

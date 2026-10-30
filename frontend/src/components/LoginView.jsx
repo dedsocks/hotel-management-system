@@ -8,13 +8,23 @@ export default function LoginView({ onBackToPublic }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = loginStaff(email, password);
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      setError('');
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const result = await loginStaff(email, password);
+      if (!result?.success) {
+        setError(result?.error || 'Invalid credentials.');
+      } else {
+        setError('');
+      }
+    } catch (err) {
+      setError(err?.message || 'Login failed.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
