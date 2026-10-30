@@ -141,8 +141,12 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
             <button
               onClick={() => {
-                const el = document.getElementById('booking-bar');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                const hero = document.getElementById('hero-section');
+                if (hero) {
+                  hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
               className="hidden sm:inline-flex items-center px-4 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
             >
@@ -153,7 +157,10 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       </header>
 
       {/* 2. Hero Section with Cinematic Zoom & Dynamic Typography */}
-      <section className="relative min-h-[calc(100vh-65px)] flex items-center justify-center px-6 md:px-12 py-10 bg-noir-950 overflow-hidden">
+      <section 
+        id="hero-section" 
+        className="relative min-h-[calc(100vh-65px)] flex items-center justify-center px-6 md:px-12 py-10 bg-noir-950 overflow-hidden scroll-mt-20"
+      >
         {/* Full Bleed Architecture Photograph with Slow Zoom */}
         <img
           key={selectedBranch.Branch_ID}
