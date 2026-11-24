@@ -1,0 +1,284 @@
+
+  HOTEL MANAGEMENT SYSTEM — "THE GRAND GIRVAN PALACE"
+  General Project Description
+
+
+1. PROJECT OVERVIEW
+
+The Hotel Management System is a database-driven web application developed as
+a final project for DBMS practical coursework. It models the real-world
+operations of a luxury hotel chain called "The Grand Girvan Palace," operating
+across multiple branches, and serves as a practical demonstration of core
+relational database management concepts — including schema design, normalization,
+referential integrity, complex SQL querying, transactional processing, and
+indexing — applied to a realistic, multi-module business domain.
+
+The project uses MySQL as its relational database management system. A Node.js
+(Express) backend serves as the application layer that interfaces with the
+database through parameterized SQL queries and explicit transaction management.
+A React frontend provides a visual interface for interacting with the
+underlying data, but the primary focus and substance of the project lies in
+the database design, the SQL operations, and the DBMS concepts they embody.
+
+
+2. DATABASE DESIGN & SCHEMA
+
+The database consists of 18 interrelated tables organized into five logical
+modules, designed to model every operational aspect of hotel management:
+
+(a) Authentication & Staff Management (4 tables):
+    - Branch: Stores hotel branch locations with addresses and contact info.
+    - Staff: Central employee table with role assignments. Acts as the
+      supertype in a specialization hierarchy.
+    - Receptionist: Specialization sub-table (1:1 with Staff) storing shift
+      timings and desk extension numbers.
+    - Manager: Specialization sub-table (1:1 with Staff) storing managed
+      department and office number.
+
+(b) Property & Room Infrastructure (4 tables):
+    - RoomType: Master definitions for room categories (Signature, Deluxe,
+      Terrace Suite, Palace Suite, Royal Residence) with base capacity and
+      pricing.
+    - Rooms: Individual physical rooms linked to a branch and room type, with
+      housekeeping status tracking.
+    - Room_Amenities: Multivalued attribute table using a composite primary
+      key (Room_ID, Amenity_Name) to store variable amenities per room.
+    - PriceRule: Seasonal and promotional pricing rules with date ranges and
+      price multipliers applied to room types.
+
+(c) CRM, Reservations & Operations (3 tables):
+    - Guest: Guest profiles with loyalty points, loyalty tier
+      (Bronze/Silver/Gold/Platinum), account status, and special requests.
+    - Reservations: Booking records linking guests to rooms with scheduled
+      and actual check-in/out dates and booking status tracking.
+    - HousekeepingTask: Room maintenance and cleaning task records assigned
+      to specific staff members, with status and type tracking.
+
+(d) On-Site Services & POS Integration (6 tables):
+    - Therapist: Links staff members to spa therapist roles with specialty
+      information. Extends the Staff specialization hierarchy.
+    - MealPlan: Daily meal package configurations (B&B, Half Board,
+      All-Inclusive).
+    - MenuItem: Restaurant and room service menu items with descriptions,
+      categories, and pricing.
+    - FoodOrder & FoodOrderItem: Room service and restaurant order tracking,
+      with individual item quantities and subtotals, billed against
+      reservations.
+    - SpaService & SpaAppointment: Spa treatment definitions and scheduled
+      sessions linking reservations, services, and therapists.
+
+(e) Billing, Payments & Invoicing (5 tables):
+    - Tax: Tax categories with percentage rates.
+    - Coupon: Promotional discount vouchers with percentage limits, maximum
+      discount caps, and expiry dates.
+    - Invoice: Per-reservation invoices with total charges, discounts, taxes,
+      and net payable amounts (1:1 with Reservations).
+    - InvoiceItem: Itemized line entries within an invoice categorized by
+      charge type (Accommodation, Spa & Wellness, etc.).
+    - Payments: Payment transactions linked to both reservations and invoices
+      with method and status tracking.
+
+
+3. DBMS CONCEPTS DEMONSTRATED
+
+The following core relational database concepts are implemented and
+demonstrated throughout the project:
+
+(a) Normalization (up to 3NF):
+    The schema is designed in Third Normal Form (3NF). Every non-key
+    attribute depends solely on the primary key of its table, with no
+    partial or transitive dependencies.
+
+    - Multivalued attributes are decomposed into separate tables rather
+      than being stored as comma-separated values. For example, room
+      amenities are stored in a dedicated Room_Amenities table with the
+      composite primary key (Room_ID, Amenity_Name), rather than as a
+      list inside the Rooms table.
+
+    - Repeating groups are eliminated. Food order items, invoice line
+      items, and room amenities each reside in their own normalized
+      tables with appropriate foreign key linkages.
+
+    - There are no transitive dependencies. For instance, branch details
+      are stored in the Branch table and referenced via foreign keys in
+      Staff and Rooms, rather than being duplicated in each record.
+
+(b) Entity Specialization / Generalization (IS-A Hierarchy):
+    The Staff entity participates in a specialization hierarchy. The base
+    Staff table contains common attributes (name, email, password hash,
+    role, branch), while sub-tables — Receptionist, Manager, and Therapist
+    — store role-specific attributes. These sub-tables share the same
+    primary key as Staff (1:1 identifying relationships), implementing
+    the IS-A relationship pattern. This avoids NULL-heavy wide tables
+    while preserving the ability to query all staff uniformly through
+    the parent table.
+
+(c) Referential Integrity & Foreign Key Constraints:
+    The schema enforces 15+ FOREIGN KEY constraints with carefully chosen
+    referential actions:
+
+    - ON DELETE CASCADE: Used where child records should be removed when
+      the parent is deleted (e.g., deleting a Branch cascades to its
+      Staff, Rooms, and downstream records).
+    - ON DELETE RESTRICT: Used where deletion of a referenced record must
+      be prevented to protect data integrity (e.g., a RoomType cannot be
+      deleted while Rooms of that type exist; a MenuItem cannot be deleted
+      while it appears in existing orders).
+    - ON DELETE SET NULL: Used where the relationship is optional and the
+      child record should be preserved (e.g., if a staff member is deleted,
+      housekeeping tasks assigned to them have Assigned_Staff_ID set to
+      NULL rather than being deleted).
+    - ON UPDATE CASCADE: Applied universally to propagate primary key
+      changes throughout the dependency chain.
+
+(d) CHECK Constraints & Domain Integrity:
+    Numerous CHECK constraints enforce domain-level business rules directly
+    in the schema:
+    - Base_Capacity > 0 and Base_Price >= 0 on RoomType.
+    - Check_Out_Date > Check_In_Date on Reservations.
+    - End_Date >= Start_Date on PriceRule.
+    - Quantity > 0 and Subtotal_Price >= 0 on FoodOrderItem.
+    - Discount_Percentage BETWEEN 0 AND 100 on Coupon.
+    - Amount > 0 on Payments.
+    - Loyalty_Points >= 0 on Guest.
+
+(e) UNIQUE Constraints:
+    - Staff.Email and Guest.Email enforce unique accounts.
+    - (Branch_ID, Room_Number) composite unique constraint on Rooms ensures
+      no two rooms in the same branch share a number.
+    - Reservation_ID on Invoice (1:1) ensures each reservation produces at
+      most one invoice.
+
+(f) Complex Multi-Table JOIN Queries (View-Like Queries):
+    The application executes 7 major multi-table JOIN queries that
+    effectively serve as virtual database views, aggregating normalized
+    data into denormalized result sets for display:
+
+    - Room Status View: 5-table JOIN (Rooms, RoomType, Branch,
+      Reservations, Guest) producing a live room grid with occupancy
+      and housekeeping status.
+    - Reservation View: 5-table JOIN (Reservations, Guest, Rooms,
+      RoomType, Invoice) producing a comprehensive booking list with
+      guest details and billing amounts.
+    - Housekeeping View: 4-table JOIN (HousekeepingTask, Rooms, Branch,
+      Staff) producing task lists with room numbers, branch names, and
+      assigned staff names.
+    - Spa Appointments View: 7-table JOIN (SpaAppointment, SpaService,
+      Therapist, Staff, Reservations, Rooms, Guest) — the most complex
+      query in the system — producing appointment details with service
+      info, therapist names, room numbers, and guest names.
+    - Staff Directory View: 5-table JOIN (Staff, Branch, Receptionist,
+      Manager, Therapist) producing a unified staff listing with all
+      role-specific attributes.
+    - Guest CRM View: 2-table JOIN with GROUP BY aggregation (Guest,
+      Reservations) producing guest profiles with total booking counts,
+      sorted by loyalty points.
+    - Invoice View: 4-table JOIN (Invoice, Reservations, Guest, Payments)
+      producing billing reports with guest names, payment methods, and
+      status.
+
+(g) Aggregate Functions & GROUP BY:
+    - COUNT(*) and COUNT(DISTINCT) for room totals and occupancy counts.
+    - SUM() for revenue calculations across invoices.
+    - COALESCE() to handle NULL aggregation results (zero invoices).
+    - COUNT() with GROUP BY for per-guest booking counts and per-branch
+      room counts.
+    - Branch revenue analytics using SUM(Net_Payable) grouped by Branch_ID.
+
+(h) Sub-Queries:
+    Room availability checking uses a NOT IN sub-query with date-range
+    overlap logic:
+      WHERE Room_ID NOT IN (
+          SELECT Room_ID FROM Reservations
+          WHERE Booking_Status NOT IN ('Cancelled', 'Checked-Out')
+            AND (requested_check_in < Check_Out_Date
+                 AND requested_check_out > Check_In_Date)
+      )
+    This demonstrates correlated sub-queries for solving a real-world
+    scheduling/conflict-detection problem.
+
+(i) Transaction Management (ACID Properties):
+    Four critical operations use explicit BEGIN / COMMIT / ROLLBACK
+    transaction blocks to ensure atomicity, consistency, isolation, and
+    durability:
+
+    1. Reservation Creation: Atomically inserts a reservation, generates
+       an invoice, creates an invoice line item, records a payment, and
+       updates guest loyalty points — 5 linked writes across 4 tables.
+       If any step fails, all changes are rolled back.
+
+    2. Guest Check-Out: Atomically updates the reservation status, marks
+       the room as dirty, and creates a housekeeping task — 3 cascading
+       writes across 3 tables.
+
+    3. Housekeeping Task Completion: Atomically updates the task status
+       and synchronizes the room's housekeeping status — 2 linked writes
+       across 2 tables.
+
+    4. Spa Appointment Booking: Atomically inserts the appointment record,
+       adds a line item to the guest's invoice, and updates the invoice
+       totals — 4 linked writes across 3 tables.
+
+    These transactions implement trigger-equivalent cascading behavior at
+    the application level, demonstrating how ACID properties maintain data
+    consistency across related tables.
+
+(j) Trigger-Like Cascading Logic:
+    While not implemented as standalone SQL CREATE TRIGGER statements,
+    the system demonstrates equivalent trigger behavior through its
+    transactional logic:
+
+    - AFTER INSERT on Reservations (simulated): Auto-generates an Invoice,
+      InvoiceItem, Payment record, and awards loyalty points to the guest.
+    - AFTER UPDATE on Reservations to 'Checked-Out' (simulated): Auto-sets
+      Room.Housekeeping_Status to 'Dirty' and inserts a HousekeepingTask.
+    - AFTER UPDATE on HousekeepingTask to 'Completed' (simulated): Auto-sets
+      Room.Housekeeping_Status to 'Clean'.
+    - AFTER INSERT on SpaAppointment (simulated): Auto-adds an InvoiceItem
+      and updates Invoice.Total_Charges and Invoice.Net_Payable.
+
+(k) Indexing & Query Optimization:
+    12 non-primary-key indexes are defined to accelerate the most frequent
+    query patterns:
+
+    - Single-column indexes on foreign keys used in JOIN conditions
+      (Staff.Branch_ID, Rooms.Branch_ID, Rooms.RoomType_ID,
+      Reservations.Guest_ID, Reservations.Room_ID, etc.).
+    - Composite index on (Check_In_Date, Check_Out_Date) in Reservations
+      to optimize the date-range overlap sub-query used in availability
+      checking — the most performance-critical query in the system.
+    - Indexes on InvoiceItem.Invoice_ID, Payments.Reservation_ID, and
+      Payments.Invoice_ID to speed up billing report generation.
+
+(l) Connection Pooling:
+    The database connection is managed through a connection pool (mysql2)
+    configured with 15 concurrent connections, wait-for-connections
+    enabled, and no queue limit. This demonstrates efficient database
+    resource management for concurrent access.
+
+(m) Data Seeding & Referential Order:
+    The seed script populates all 18 tables with realistic sample data
+    while respecting the foreign key dependency order. It uses
+    SET FOREIGN_KEY_CHECKS = 0 / 1 to allow TRUNCATE during re-seeding,
+    demonstrating awareness of referential dependency chains in the schema.
+
+
+4. TECHNOLOGY STACK
+
+Database:
+  - MySQL 8.0 (Relational DBMS)
+  - Standard SQL DDL with CHECK constraints, FOREIGN KEYs, and indexes
+  - mysql2/promise driver (Node.js, with connection pooling)
+
+Backend (Application Layer):
+  - Node.js with Express 5 (REST API interfacing with the database)
+  - bcryptjs (password hashing before storage)
+  - jsonwebtoken / JWT (session-based authentication)
+
+Frontend (Presentation Layer):
+  - React 19 with Vite 8 (single-page application)
+  - Tailwind CSS 3 (styling)
+
+
+
+  End of Project Description
