@@ -63,11 +63,42 @@ exports.createFoodOrder = async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    const { reservationId, items } = req.body;
+    const { reservationId, guestId, items } = req.body;
 
-    if (!reservationId || !Array.isArray(items) || items.length === 0) {
+    if (!Array.isArray(items) || items.length === 0) {
       await connection.rollback();
-      return res.status(400).json({ error: 'Reservation ID and at least one menu item are required.' });
+      return res.status(400).json({ error: 'At least one menu item is required.' });
+    }
+
+    // Enforce that the guest is currently Checked-In at the hotel
+    let actualReservationId = null;
+    if (reservationId) {
+      const [resCheck] = await connection.query(
+        `SELECT Reservation_ID, Booking_Status FROM Reservations WHERE Reservation_ID = ? LIMIT 1`,
+        [reservationId]
+      );
+      if (resCheck.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ error: 'Reservation not found.' });
+      }
+      if (resCheck[0].Booking_Status !== 'Checked-In') {
+        await connection.rollback();
+        return res.status(403).json({ error: 'Guest must be currently checked in at the hotel to order room service.' });
+      }
+      actualReservationId = resCheck[0].Reservation_ID;
+    } else if (guestId) {
+      const [guestRes] = await connection.query(
+        `SELECT Reservation_ID FROM Reservations WHERE Guest_ID = ? AND Booking_Status = 'Checked-In' ORDER BY Created_At DESC LIMIT 1`,
+        [guestId]
+      );
+      if (guestRes.length === 0) {
+        await connection.rollback();
+        return res.status(403).json({ error: 'You must be currently checked in at the hotel to order in-room dining.' });
+      }
+      actualReservationId = guestRes[0].Reservation_ID;
+    } else {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Guest or reservation information is required.' });
     }
 
     const itemIds = items.map((i) => i.itemId);
@@ -97,7 +128,7 @@ exports.createFoodOrder = async (req, res) => {
     await connection.query(
       `INSERT INTO FoodOrder (Order_ID, Reservation_ID, Total_Amount, Order_Status)
        VALUES (?, ?, ?, 'Placed')`,
-      [orderId, reservationId, totalAmount]
+      [orderId, actualReservationId, totalAmount]
     );
 
     for (const oi of orderItems) {
@@ -111,7 +142,7 @@ exports.createFoodOrder = async (req, res) => {
     // Post charge to the reservation's Invoice
     const [invoices] = await connection.query(
       `SELECT Invoice_ID FROM Invoice WHERE Reservation_ID = ? LIMIT 1`,
-      [reservationId]
+      [actualReservationId]
     );
 
     if (invoices.length > 0) {

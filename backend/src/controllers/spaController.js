@@ -62,33 +62,44 @@ exports.bookSpaAppointment = async (req, res) => {
 
     const { 
       reservationId, 
+      guestId,
       serviceId, 
       therapistId, 
       startTime, 
       endTime 
     } = req.body;
 
-    if (!reservationId || !serviceId) {
-      return res.status(400).json({ error: 'Reservation ID and Service ID are required' });
+    if (!serviceId || (!reservationId && !guestId)) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Service ID and an active stay are required' });
     }
 
-    // 1. Verify reservation exists
-    const [resRows] = await connection.query(
-      'SELECT Reservation_ID, Guest_ID FROM Reservations WHERE Reservation_ID = ?',
-      [reservationId]
-    );
-
-    let actualReservationId = reservationId;
-    if (resRows.length === 0) {
-      // Fallback: find any active or most recent reservation
-      const [fallbackRows] = await connection.query(
-        'SELECT Reservation_ID FROM Reservations ORDER BY Created_At DESC LIMIT 1'
+    // 1. Verify guest is currently Checked-In at the hotel
+    let actualReservationId = null;
+    if (reservationId) {
+      const [resRows] = await connection.query(
+        'SELECT Reservation_ID, Booking_Status FROM Reservations WHERE Reservation_ID = ? LIMIT 1',
+        [reservationId]
       );
-      if (fallbackRows.length > 0) {
-        actualReservationId = fallbackRows[0].Reservation_ID;
-      } else {
-        return res.status(404).json({ error: 'No active reservation found to link spa service' });
+      if (resRows.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ error: 'Reservation not found' });
       }
+      if (resRows[0].Booking_Status !== 'Checked-In') {
+        await connection.rollback();
+        return res.status(403).json({ error: 'Guest must be currently checked in at the hotel to book spa treatments' });
+      }
+      actualReservationId = resRows[0].Reservation_ID;
+    } else if (guestId) {
+      const [guestRes] = await connection.query(
+        "SELECT Reservation_ID FROM Reservations WHERE Guest_ID = ? AND Booking_Status = 'Checked-In' ORDER BY Created_At DESC LIMIT 1",
+        [guestId]
+      );
+      if (guestRes.length === 0) {
+        await connection.rollback();
+        return res.status(403).json({ error: 'You must be currently checked in at the hotel to book spa treatments' });
+      }
+      actualReservationId = guestRes[0].Reservation_ID;
     }
 
     // 2. Select therapist if not provided
