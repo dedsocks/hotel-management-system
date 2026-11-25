@@ -5,6 +5,7 @@ import {
   CalendarCheck, 
   BedDouble, 
   Sparkles, 
+  Utensils,
   Receipt, 
   Users, 
   LogOut,
@@ -15,12 +16,13 @@ export default function Sidebar({ currentTab, onSelectTab, onExitToPublic }) {
   const { currentStaff, logoutStaff } = useAuth();
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: Building2 },
-    { id: 'reservations', label: 'Reservations', icon: CalendarCheck, badge: '3 Active' },
-    { id: 'rooms', label: 'Rooms & Housekeeping', icon: BedDouble },
-    { id: 'pos', label: 'POS & Spa Services', icon: Sparkles },
-    { id: 'billing', label: 'Billing & Invoices', icon: Receipt },
-    { id: 'staff', label: 'Staff Directory', icon: Users, roleRequired: 'Manager' },
+    { id: 'overview', label: 'Overview', icon: Building2, roles: ['Manager', 'Receptionist'] },
+    { id: 'reservations', label: 'Reservations', icon: CalendarCheck, badge: '3 Active', roles: ['Manager', 'Receptionist'] },
+    { id: 'rooms', label: 'Rooms & Housekeeping', icon: BedDouble, roles: ['Manager'] },
+    { id: 'pos', label: 'POS & Spa Services', icon: Sparkles, roles: ['Manager', 'Receptionist', 'Therapist'] },
+    { id: 'dining', label: 'Kitchen & Dining POS', icon: Utensils, roles: ['Manager'] },
+    { id: 'billing', label: 'Billing & Invoices', icon: Receipt, roles: ['Manager', 'Receptionist'] },
+    { id: 'staff', label: 'Staff Directory', icon: Users, roles: ['Manager'] },
   ];
 
   return (
@@ -43,7 +45,7 @@ export default function Sidebar({ currentTab, onSelectTab, onExitToPublic }) {
         {/* Navigation items */}
         <nav className="p-3 space-y-1">
           {navItems.map((item) => {
-            if (item.roleRequired && currentStaff?.Role !== item.roleRequired) {
+            if (item.roles && !item.roles.includes(currentStaff?.Role)) {
               return null;
             }
             const Icon = item.icon;
