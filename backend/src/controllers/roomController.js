@@ -15,8 +15,8 @@ exports.getAllRooms = async (req, res) => {
       JOIN RoomType rt ON r.RoomType_ID = rt.RoomType_ID
       JOIN Branch b ON r.Branch_ID = b.Branch_ID
       LEFT JOIN Reservations res ON r.Room_ID = res.Room_ID 
-           AND res.Booking_Status = 'Checked-In' 
-           AND CURRENT_DATE BETWEEN res.Check_In_Date AND res.Check_Out_Date
+           AND res.Booking_Status IN ('Checked-In', 'Confirmed')
+           AND res.Check_Out_Date >= CURRENT_DATE
       LEFT JOIN Guest g ON res.Guest_ID = g.Guest_ID
       WHERE 1=1
     `;
@@ -47,6 +47,8 @@ exports.getAllRooms = async (req, res) => {
       let derivedStatus = 'Available';
       if (room.Booking_Status === 'Checked-In') {
         derivedStatus = 'Occupied';
+      } else if (room.Booking_Status === 'Confirmed') {
+        derivedStatus = 'Reserved';
       } else if (room.Housekeeping_Status === 'Dirty' || room.Housekeeping_Status === 'Cleaning In Progress') {
         derivedStatus = 'Maintenance';
       }

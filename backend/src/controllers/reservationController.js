@@ -50,6 +50,7 @@ exports.createReservation = async (req, res) => {
 
     const { 
       guestId, 
+      guestDetails,
       roomId, 
       checkInDate, 
       checkOutDate, 
@@ -63,6 +64,42 @@ exports.createReservation = async (req, res) => {
     if (!guestId || !checkInDate || !checkOutDate) {
       await connection.rollback();
       return res.status(400).json({ error: 'Missing required booking fields' });
+    }
+
+    // Ensure Guest_ID exists in Guest table (handles local/offline-registered guests seamlessly)
+    let resolvedGuestId = guestId;
+    const [existingGuest] = await connection.query(
+      'SELECT Guest_ID FROM Guest WHERE Guest_ID = ? LIMIT 1',
+      [resolvedGuestId]
+    );
+
+    if (existingGuest.length === 0) {
+      if (guestDetails && guestDetails.email) {
+        const [byEmail] = await connection.query(
+          'SELECT Guest_ID FROM Guest WHERE Email = ? LIMIT 1',
+          [guestDetails.email]
+        );
+        if (byEmail.length > 0) {
+          resolvedGuestId = byEmail[0].Guest_ID;
+        } else {
+          await connection.query(
+            `INSERT INTO Guest (Guest_ID, First_Name, Last_Name, Email, Phone, Password_Hash)
+             VALUES (?, ?, ?, ?, ?, 'guest_sync')`,
+            [
+              resolvedGuestId,
+              guestDetails.firstName || 'Guest',
+              guestDetails.lastName || 'User',
+              guestDetails.email,
+              guestDetails.phone || '+00 0000000000'
+            ]
+          );
+        }
+      } else {
+        const [fallbackGuest] = await connection.query('SELECT Guest_ID FROM Guest LIMIT 1');
+        if (fallbackGuest.length > 0) {
+          resolvedGuestId = fallbackGuest[0].Guest_ID;
+        }
+      }
     }
 
     // If roomId is not provided or is mock, find an active available room
@@ -97,11 +134,40 @@ exports.createReservation = async (req, res) => {
     await connection.query(
       `INSERT INTO Reservations (Reservation_ID, Guest_ID, Room_ID, Check_In_Date, Check_Out_Date, Booking_Status)
        VALUES (?, ?, ?, ?, ?, 'Confirmed')`,
-      [reservationId, guestId, targetRoomId, checkInDate, checkOutDate]
+      [reservationId, resolvedGuestId, targetRoomId, checkInDate, checkOutDate]
     );
 
     const nights = Math.max(1, Math.round((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)));
-    const charges = subtotal || (totalAmount ? totalAmount * 0.88 : 20000 * nights);
+
+    // Dynamic PriceRule Engine: check if reservation dates overlap any active PriceRule for this RoomType
+    let computedRoomSubtotal = subtotal;
+    if (!computedRoomSubtotal) {
+      const [roomMeta] = await connection.query(
+        `SELECT r.RoomType_ID, rt.Base_Price
+         FROM Rooms r
+         JOIN RoomType rt ON r.RoomType_ID = rt.RoomType_ID
+         WHERE r.Room_ID = ?`,
+        [targetRoomId]
+      );
+
+      if (roomMeta.length > 0) {
+        const { RoomType_ID, Base_Price } = roomMeta[0];
+        const [priceRules] = await connection.query(
+          `SELECT Price_Multiplier, Rule_Name
+           FROM PriceRule
+           WHERE RoomType_ID = ?
+             AND Start_Date <= ?
+             AND End_Date >= ?
+           ORDER BY Price_Multiplier DESC
+           LIMIT 1`,
+          [RoomType_ID, checkOutDate, checkInDate]
+        );
+        const multiplier = priceRules.length > 0 ? Number(priceRules[0].Price_Multiplier) : 1.0;
+        computedRoomSubtotal = Math.round(Number(Base_Price) * multiplier * nights * 100) / 100;
+      }
+    }
+
+    const charges = computedRoomSubtotal || (totalAmount ? totalAmount * 0.88 : 20000 * nights);
     const tax = taxAmount !== undefined ? taxAmount : charges * 0.12;
     const discount = discountAmount || 0;
     const net = totalAmount || (charges + tax - discount);
