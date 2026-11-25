@@ -72,6 +72,25 @@ exports.getAllInvoices = async (req, res) => {
       LEFT JOIN Payments p ON inv.Invoice_ID = p.Invoice_ID
       ORDER BY inv.Issue_Date DESC, inv.Invoice_ID DESC
     `);
+
+    if (invoices.length > 0) {
+      const invoiceIds = invoices.map((i) => i.Invoice_ID);
+      const [items] = await pool.query(
+        `SELECT InvoiceItem_ID, Invoice_ID, Description, Charge_Category, Amount
+         FROM InvoiceItem
+         WHERE Invoice_ID IN (?)`,
+        [invoiceIds]
+      );
+      const itemsByInvoice = {};
+      for (const item of items) {
+        if (!itemsByInvoice[item.Invoice_ID]) itemsByInvoice[item.Invoice_ID] = [];
+        itemsByInvoice[item.Invoice_ID].push(item);
+      }
+      for (const inv of invoices) {
+        inv.items = itemsByInvoice[inv.Invoice_ID] || [];
+      }
+    }
+
     res.json(invoices);
   } catch (err) {
     console.error('Error fetching invoices:', err);

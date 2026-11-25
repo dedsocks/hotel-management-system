@@ -287,8 +287,28 @@ export default function BillingInvoicesView() {
                   {new Date(selectedInvoice.Check_In_Date).toLocaleDateString()} &rarr; {new Date(selectedInvoice.Check_Out_Date).toLocaleDateString()}
                 </span>
               </div>
+              {Array.isArray(selectedInvoice.items) && selectedInvoice.items.length > 0 && (
+                <div className="bg-sand-50/90 border border-sand-200 rounded-xl p-3 space-y-2">
+                  <div className="text-[10px] uppercase tracking-wider font-semibold text-sand-600">
+                    Itemized Folio Charges
+                  </div>
+                  {selectedInvoice.items.map((item) => (
+                    <div key={item.InvoiceItem_ID} className="flex justify-between items-start gap-2 text-[11px]">
+                      <div>
+                        <span className="font-medium text-noir-900">{item.Description}</span>
+                        <span className="ml-1.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-sand-200 text-sand-700">
+                          {item.Charge_Category}
+                        </span>
+                      </div>
+                      <span className="font-semibold text-noir-900 shrink-0">
+                        ₹{Number(item.Amount || 0).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="flex justify-between border-b border-sand-200/80 pb-2">
-                <span className="text-sand-600">Room Accommodation Subtotal</span>
+                <span className="text-sand-600">Total Charges Subtotal</span>
                 <span className="font-semibold text-noir-900">₹{Number(selectedInvoice.Total_Charges || 0).toLocaleString()}</span>
               </div>
               {Number(selectedInvoice.Discount || 0) > 0 && (
