@@ -1,8 +1,22 @@
 const API_BASE = '/api';
 
+async function parseResponse(res) {
+  const text = await res.text();
+  if (!text) {
+    return res.ok
+      ? {}
+      : { error: `Server returned empty response (HTTP ${res.status}). Make sure the backend server is running on port 5000.` };
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: `Invalid server response (HTTP ${res.status}).` };
+  }
+}
+
 export async function fetchHealth() {
   const res = await fetch(`${API_BASE}/health`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function loginStaffApi(email, password) {
@@ -11,7 +25,7 @@ export async function loginStaffApi(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function loginGuestApi(email, password) {
@@ -20,7 +34,7 @@ export async function loginGuestApi(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function registerGuestApi(data) {
@@ -29,23 +43,23 @@ export async function registerGuestApi(data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchRoomsApi(params = {}) {
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`${API_BASE}/rooms?${query}`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchRoomTypesApi() {
   const res = await fetch(`${API_BASE}/rooms/types`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchBranchesApi() {
   const res = await fetch(`${API_BASE}/rooms/branches`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function updateHousekeepingStatusApi(roomId, housekeepingStatus) {
@@ -54,13 +68,13 @@ export async function updateHousekeepingStatusApi(roomId, housekeepingStatus) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ housekeepingStatus })
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchReservationsApi(params = {}) {
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`${API_BASE}/reservations?${query}`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function createReservationApi(data) {
@@ -69,26 +83,26 @@ export async function createReservationApi(data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function checkInReservationApi(reservationId) {
   const res = await fetch(`${API_BASE}/reservations/${reservationId}/check-in`, {
     method: 'POST'
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function checkOutReservationApi(reservationId) {
   const res = await fetch(`${API_BASE}/reservations/${reservationId}/check-out`, {
     method: 'POST'
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchHousekeepingTasksApi() {
   const res = await fetch(`${API_BASE}/housekeeping`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function updateHousekeepingTaskStatusApi(taskId, status) {
@@ -97,43 +111,43 @@ export async function updateHousekeepingTaskStatusApi(taskId, status) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status })
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchStaffDirectoryApi(params = {}) {
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`${API_BASE}/operations/staff?${query}`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchInvoicesApi() {
   const res = await fetch(`${API_BASE}/operations/invoices`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchGuestsApi() {
   const res = await fetch(`${API_BASE}/operations/guests`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchAnalyticsApi() {
   const res = await fetch(`${API_BASE}/operations/analytics`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchSpaServicesApi() {
   const res = await fetch(`${API_BASE}/spa/services`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchTherapistsApi() {
   const res = await fetch(`${API_BASE}/spa/therapists`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function fetchSpaAppointmentsApi() {
   const res = await fetch(`${API_BASE}/spa/appointments`);
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function bookSpaAppointmentApi(data) {
@@ -142,7 +156,7 @@ export async function bookSpaAppointmentApi(data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function updateSpaAppointmentStatusApi(appointmentId, status) {
@@ -151,5 +165,42 @@ export async function updateSpaAppointmentStatusApi(appointmentId, status) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status })
   });
-  return res.json();
+  return parseResponse(res);
+}
+
+export async function validateCouponApi(code, subtotal = 0) {
+  const res = await fetch(`${API_BASE}/coupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, subtotal })
+  });
+  return parseResponse(res);
+}
+
+export async function fetchDiningMenuApi() {
+  const res = await fetch(`${API_BASE}/dining/menu`);
+  return parseResponse(res);
+}
+
+export async function fetchFoodOrdersApi() {
+  const res = await fetch(`${API_BASE}/dining/orders`);
+  return parseResponse(res);
+}
+
+export async function createFoodOrderApi(data) {
+  const res = await fetch(`${API_BASE}/dining/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return parseResponse(res);
+}
+
+export async function updateFoodOrderStatusApi(orderId, status) {
+  const res = await fetch(`${API_BASE}/dining/orders/${orderId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  return parseResponse(res);
 }
