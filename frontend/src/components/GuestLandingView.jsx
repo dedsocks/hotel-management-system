@@ -4,7 +4,7 @@ import { INITIAL_BRANCHES, INITIAL_ROOMS, INITIAL_EXPERIENCES } from '../data/mo
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import CustomSelect from './CustomSelect';
 import LuxuryDatePicker from './LuxuryDatePicker';
-import { createReservationApi, fetchSpaServicesApi, bookSpaAppointmentApi } from '../api/hotelApi';
+import { createReservationApi, fetchSpaServicesApi, bookSpaAppointmentApi, validateCouponApi, fetchDiningMenuApi, createFoodOrderApi } from '../api/hotelApi';
 import { 
   Users, 
   Sparkles, 
@@ -22,6 +22,7 @@ import {
   Clock, 
   CreditCard,
   Receipt,
+  X,
   Wine, 
   Waves, 
   Sun, 
@@ -39,12 +40,52 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [isGuestPickerOpen, setIsGuestPickerOpen] = useState(false);
   const guestPickerRef = useRef(null);
 
+  // Maximum allowed occupancy per room (hotel policy: max 4 guests per room)
+  const MAX_GUESTS_PER_ROOM = 4;
+  const maxAllowedGuests = roomsCount * MAX_GUESTS_PER_ROOM;
+
+  const handleUpdateAdults = (newAdults) => {
+    const clamped = Math.max(1, newAdults);
+    setAdultsCount(clamped);
+    // Auto-adjust rooms upward if total guests exceed current rooms capacity
+    const neededRooms = Math.ceil((clamped + childrenCount) / MAX_GUESTS_PER_ROOM);
+    if (neededRooms > roomsCount) {
+      setRoomsCount(Math.min(5, neededRooms));
+    }
+  };
+
+  const handleUpdateChildren = (newChildren) => {
+    const clamped = Math.max(0, newChildren);
+    setChildrenCount(clamped);
+    // Auto-adjust rooms upward if total guests exceed current rooms capacity
+    const neededRooms = Math.ceil((adultsCount + clamped) / MAX_GUESTS_PER_ROOM);
+    if (neededRooms > roomsCount) {
+      setRoomsCount(Math.min(5, neededRooms));
+    }
+  };
+
+  const handleUpdateRooms = (newRooms) => {
+    const minRoomsNeeded = Math.ceil((adultsCount + childrenCount) / MAX_GUESTS_PER_ROOM);
+    // Don't let rooms decrease below what is needed for the current total guests
+    const targetRooms = Math.max(minRoomsNeeded, Math.min(5, newRooms));
+    setRoomsCount(targetRooms);
+  };
+
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
+  const [isBookModalClosing, setIsBookModalClosing] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [isProcessingBooking, setIsProcessingBooking] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+
+  const handleCloseBookModal = () => {
+    setIsBookModalClosing(true);
+    setTimeout(() => {
+      setIsBookModalOpen(false);
+      setIsBookModalClosing(false);
+    }, 200);
+  };
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -64,12 +105,54 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
   const [spaError, setSpaError] = useState('');
   const [isBookingSpa, setIsBookingSpa] = useState(false);
 
+  // Dining Menu state
+  const [diningMenu, setDiningMenu] = useState([]);
+  const diningCarouselRef = useRef(null);
+
+  const getDiningImage = (item) => {
+    const name = (item?.Name || '').toLowerCase();
+    const cat = (item?.Category || '').toLowerCase();
+    if (name.includes('dom') || name.includes('champagne') || cat.includes('beverage')) {
+      return 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80&w=800';
+    }
+    if (name.includes('turkey') || name.includes('roulade')) {
+      return 'https://images.unsplash.com/photo-1574672280600-4accfa5b6f98?auto=format&fit=crop&q=80&w=800';
+    }
+    if (name.includes('risotto') || name.includes('truffle')) {
+      return 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=800';
+    }
+    if (name.includes('salmon')) {
+      return 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800';
+    }
+    if (cat.includes('dessert')) {
+      return 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80&w=800';
+    }
+    if (cat.includes('starter')) {
+      return 'https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&q=80&w=800';
+    }
+    return 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800';
+  };
+
+  const scrollDiningCarousel = (direction) => {
+    if (!diningCarouselRef.current) return;
+    const width = diningCarouselRef.current.clientWidth;
+    diningCarouselRef.current.scrollBy({
+      left: direction === 'next' ? width * 0.75 : -width * 0.75,
+      behavior: 'smooth'
+    });
+  };
+
   useEffect(() => {
     fetchSpaServicesApi()
       .then((data) => {
         if (Array.isArray(data)) setSpaServices(data);
       })
       .catch((err) => console.error('Failed to load spa services:', err));
+    fetchDiningMenuApi()
+      .then((data) => {
+        if (Array.isArray(data)) setDiningMenu(data);
+      })
+      .catch((err) => console.error('Failed to load dining menu:', err));
   }, []);
 
   const totalGuests = adultsCount + childrenCount;
@@ -169,17 +252,25 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
     }
   };
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     const code = couponCode.trim().toUpperCase();
-    if (code === 'WELCOME10' || code === 'PALACE10') {
-      setDiscountPercent(10);
-      setCouponStatus('Coupon applied: 10% Member Discount!');
-    } else if (code === 'VIP20') {
-      setDiscountPercent(20);
-      setCouponStatus('VIP Access: 20% Suite Discount Applied!');
-    } else {
+    if (!code) {
       setDiscountPercent(0);
-      setCouponStatus('Invalid coupon code. Try WELCOME10');
+      setCouponStatus('Please enter a promotional code.');
+      return;
+    }
+    try {
+      const res = await validateCouponApi(code, roomSubtotal);
+      if (res?.valid) {
+        setDiscountPercent(res.discountPercentage);
+        setCouponStatus(`Coupon ${res.couponCode} applied: ${res.discountPercentage}% off!`);
+      } else {
+        setDiscountPercent(0);
+        setCouponStatus(res?.error || 'Invalid or expired coupon code.');
+      }
+    } catch {
+      setDiscountPercent(0);
+      setCouponStatus('Unable to validate coupon right now.');
     }
   };
 
@@ -200,6 +291,12 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
     try {
       const payload = {
         guestId: currentGuest.Guest_ID,
+        guestDetails: {
+          firstName: currentGuest.First_Name,
+          lastName: currentGuest.Last_Name,
+          email: currentGuest.Email,
+          phone: currentGuest.Phone
+        },
         roomId: selectedRoom?.Room_ID || 'rm-101',
         checkInDate: checkIn,
         checkOutDate: checkOut,
@@ -264,6 +361,9 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
               <a href="#experiences" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
                 Experiences
               </a>
+              <a href="#dining" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
+                In-Room Dining
+              </a>
               <a href="#wellness" className="hover:text-noir-950 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-noir-900 after:transition-all">
                 Spa &amp; Wellness
               </a>
@@ -320,11 +420,13 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
             <button
               onClick={() => {
-                const hero = document.getElementById('hero-section');
-                if (hero) {
-                  hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (selectedRoom) {
+                  setIsBookModalOpen(true);
                 } else {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  const roomsEl = document.getElementById('rooms');
+                  if (roomsEl) {
+                    roomsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
                 }
               }}
               className="hidden sm:inline-flex items-center px-4 py-2 border border-noir-900 hover:bg-noir-900 hover:text-sand-50 rounded-full text-xs uppercase tracking-wider font-semibold transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
@@ -338,7 +440,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
       {/* 2. Hero Section with Cinematic Zoom & Dynamic Typography */}
       <section 
         id="hero-section" 
-        className="relative min-h-[calc(100vh-65px)] flex items-center justify-center px-6 md:px-12 py-10 bg-noir-950 overflow-hidden scroll-mt-20"
+        className="relative min-h-[calc(100vh-65px)] flex items-center justify-center px-6 md:px-12 py-10 bg-noir-950 overflow-visible scroll-mt-20 z-10"
       >
         {/* Full Bleed Architecture Photograph with Slow Zoom */}
         <img
@@ -448,7 +550,13 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
                 {/* Popover Card */}
                 {isGuestPickerOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 p-5 bg-[#FAF7F0] border border-sand-400/80 rounded-2xl shadow-2xl z-50 space-y-4 animate-modal-card">
+                  <div className="absolute top-full left-0 right-0 mt-2 p-5 bg-[#FAF7F0] border border-sand-400/80 rounded-2xl shadow-2xl z-50 space-y-4 animate-modal-card max-h-[380px] overflow-y-auto">
+                    {/* Capacity Guidance Callout */}
+                    <div className="flex items-center justify-between text-[11px] bg-sand-200/60 p-2.5 rounded-xl border border-sand-300">
+                      <span className="text-sand-700">Max Room Capacity</span>
+                      <span className="font-semibold text-noir-900">{MAX_GUESTS_PER_ROOM} guests / room ({maxAllowedGuests} max total)</span>
+                    </div>
+
                     {/* Adults Counter */}
                     <div className="flex items-center justify-between">
                       <div>
@@ -458,7 +566,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
-                          onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
+                          onClick={() => handleUpdateAdults(adultsCount - 1)}
                           disabled={adultsCount <= 1}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
                         >
@@ -469,8 +577,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                         </span>
                         <button
                           type="button"
-                          onClick={() => setAdultsCount(Math.min(10, adultsCount + 1))}
-                          disabled={adultsCount >= 10}
+                          onClick={() => handleUpdateAdults(adultsCount + 1)}
+                          disabled={totalGuests >= 5 * MAX_GUESTS_PER_ROOM}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
                         >
                           <Plus className="w-3 h-3" />
@@ -487,7 +595,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
-                          onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
+                          onClick={() => handleUpdateChildren(childrenCount - 1)}
                           disabled={childrenCount <= 0}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
                         >
@@ -498,8 +606,8 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                         </span>
                         <button
                           type="button"
-                          onClick={() => setChildrenCount(Math.min(6, childrenCount + 1))}
-                          disabled={childrenCount >= 6}
+                          onClick={() => handleUpdateChildren(childrenCount + 1)}
+                          disabled={totalGuests >= 5 * MAX_GUESTS_PER_ROOM}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
                         >
                           <Plus className="w-3 h-3" />
@@ -511,13 +619,15 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                     <div className="flex items-center justify-between border-t border-sand-200 pt-3">
                       <div>
                         <div className="text-xs font-semibold text-noir-900">Rooms</div>
-                        <div className="text-[10px] text-sand-600">Suites requested</div>
+                        <div className="text-[10px] text-sand-600">
+                          {Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM)} min for {totalGuests} guests
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
-                          onClick={() => setRoomsCount(Math.max(1, roomsCount - 1))}
-                          disabled={roomsCount <= 1}
+                          onClick={() => handleUpdateRooms(roomsCount - 1)}
+                          disabled={roomsCount <= Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM)}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center transition-colors text-noir-900"
                         >
                           <Minus className="w-3 h-3" />
@@ -527,7 +637,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                         </span>
                         <button
                           type="button"
-                          onClick={() => setRoomsCount(Math.min(5, roomsCount + 1))}
+                          onClick={() => handleUpdateRooms(roomsCount + 1)}
                           disabled={roomsCount >= 5}
                           className="w-7 h-7 rounded-full border border-sand-400 bg-white hover:bg-sand-200 disabled:opacity-30 flex items-center justify-center transition-colors text-noir-900"
                         >
@@ -542,7 +652,7 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
                         onClick={() => setIsGuestPickerOpen(false)}
                         className="w-full py-2 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-colors shadow-sm"
                       >
-                        Apply Company ({totalGuests} Guests)
+                        Apply Company ({totalGuests} Guests • {roomsCount} {roomsCount > 1 ? 'Rooms' : 'Room'})
                       </button>
                     </div>
                   </div>
@@ -844,6 +954,96 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
         </div>
       </section>
 
+      {/* 4.6. In-Room Dining & Culinary Menu Carousel */}
+      {diningMenu.length > 0 && (
+        <section id="dining" className="py-16 px-6 md:px-12 max-w-7xl mx-auto">
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sand-300 pb-5">
+            <div>
+              <span className="text-[11px] uppercase tracking-[0.25em] text-sand-600 font-semibold block mb-1.5">
+                Royal Kitchen &bull; 24-Hour Suite Service
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-normal text-noir-950">
+                In-Room Dining Menu.
+              </h2>
+            </div>
+            <div className="flex items-center gap-4">
+              <p className="text-xs text-sand-600 max-w-xs hidden md:block">
+                Artisanal courses prepared to order and delivered directly to your suite.
+              </p>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => scrollDiningCarousel('prev')}
+                  className="w-10 h-10 rounded-full border border-sand-300 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 text-noir-900 flex items-center justify-center transition-all shadow-xs active:scale-95"
+                  aria-label="Previous dishes"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollDiningCarousel('next')}
+                  className="w-10 h-10 rounded-full border border-sand-300 bg-sand-50 hover:bg-noir-900 hover:text-sand-50 text-noir-900 flex items-center justify-center transition-all shadow-xs active:scale-95"
+                  aria-label="Next dishes"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            ref={diningCarouselRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {diningMenu.map((item) => (
+              <div
+                key={item.Item_ID}
+                className="snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] group"
+              >
+                <div className="bg-sand-50 rounded-3xl overflow-hidden border border-sand-300 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full justify-between">
+                  <div>
+                    <div className="h-48 overflow-hidden relative bg-sand-200">
+                      <img
+                        src={getDiningImage(item)}
+                        alt={item.Name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-noir-950/60 via-transparent to-transparent" />
+                      <div className="absolute top-3 left-3">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-sand-50/95 text-noir-900 shadow-sm backdrop-blur-sm border border-sand-200">
+                          {item.Category}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-3 right-3">
+                        <span className="text-sm font-serif font-bold px-3 py-1 rounded-full bg-noir-950/85 text-sand-50 backdrop-blur-sm border border-white/15">
+                          ₹{Number(item.Price).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+                      <h4 className="font-serif text-lg font-medium text-noir-950 group-hover:text-accent-bronze transition-colors line-clamp-1">
+                        {item.Name}
+                      </h4>
+                      {item.Description && (
+                        <p className="text-xs text-sand-700 mt-1.5 leading-relaxed line-clamp-2">
+                          {item.Description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="px-5 pb-5 pt-2.5 border-t border-sand-200/70 flex items-center justify-between text-[11px] text-sand-600">
+                    <span>24-Hour Suite Delivery</span>
+                    <span className="font-medium text-noir-900">Billed to Folio</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* 6. Spa & Wellness Sanctuary */}
       <section id="wellness" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="bg-sand-200/50 rounded-3xl border border-sand-300 p-8 md:p-12 overflow-hidden relative">
@@ -917,153 +1117,209 @@ export default function GuestLandingView({ onOpenAuth, onNavigateStaffPortal }) 
 
       {/* 5. Booking Preview Confirmation Modal */}
       {isBookModalOpen && selectedRoom && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 animate-modal-backdrop">
-          <div className="w-full max-w-xl bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-8 relative animate-modal-card">
-            <h3 className="text-2xl font-serif text-noir-950 font-medium mb-1">
-              Your stay, at a glance.
-            </h3>
-            <p className="text-xs text-sand-600 mb-6">
-              Review details for {selectedBranch.Location_Name}.
-            </p>
-
-            {/* Room Specs & Photo */}
-            <div className="rounded-2xl overflow-hidden border border-sand-300 mb-5 shadow-sm">
-              <img src={selectedRoom.Image} alt={selectedRoom.TypeName} className="w-full h-36 object-cover" />
-              <div className="p-3.5 bg-sand-100 flex items-center justify-between">
-                <div>
-                  <div className="font-serif text-lg font-medium text-noir-950">{selectedRoom.TypeName}</div>
-                  <div className="text-xs text-sand-600">{selectedRoom.Specs}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-base font-serif font-semibold text-noir-950">₹{selectedRoom.Rate.toLocaleString()}</div>
-                  <div className="text-[10px] text-sand-600">per night</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Guest & Stay Details */}
-            <div className="grid grid-cols-2 gap-2 text-xs py-2.5 px-3 bg-sand-200/50 rounded-xl mb-4 border border-sand-300">
+        <div 
+          onClick={handleCloseBookModal}
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-noir-950/70 backdrop-blur-xs overflow-y-auto ${
+            isBookModalClosing ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'
+          }`}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className={`w-full max-w-4xl bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-8 relative my-auto ${
+              isBookModalClosing ? 'animate-modal-card-out' : 'animate-modal-card'
+            }`}
+          >
+            {/* Header with Close */}
+            <div className="flex items-start justify-between mb-6 pb-4 border-b border-sand-200">
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Guest</span>
-                <span className="font-semibold text-noir-900">{currentGuest?.First_Name} {currentGuest?.Last_Name}</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-sand-500 block mb-1">Reservation Checkout</span>
+                <h3 className="text-2xl sm:text-3xl font-serif text-noir-950 font-medium">
+                  Your stay, at a glance.
+                </h3>
+                <p className="text-xs text-sand-600 mt-1">
+                  Review booking details &amp; secure folio payment for <span className="font-semibold text-noir-900">{selectedBranch.Location_Name}</span>.
+                </p>
               </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-sand-600 block">Dates</span>
-                <span className="font-semibold text-noir-900">{checkIn} &rarr; {checkOut} ({nightsCount}N)</span>
-              </div>
+              <button
+                type="button"
+                onClick={handleCloseBookModal}
+                className="p-2 text-sand-500 hover:text-noir-900 hover:bg-sand-200 rounded-full transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Promo Coupon Bar */}
-            <div className="mb-4">
-              <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
-                Promotional Code
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="e.g. WELCOME10 or VIP20"
-                  className="flex-1 px-3 py-1.5 bg-white border border-sand-300 rounded-lg text-xs text-noir-900 uppercase tracking-wider focus:outline-none focus:border-noir-900"
-                />
-                <button
-                  type="button"
-                  onClick={handleApplyCoupon}
-                  className="px-3.5 py-1.5 bg-sand-200 border border-sand-300 hover:bg-sand-300 text-noir-900 text-xs font-semibold rounded-lg transition-colors"
-                >
-                  Apply
-                </button>
-              </div>
-              {couponStatus && (
-                <div className={`text-[10px] mt-1 ${discountPercent > 0 ? 'text-emerald-700 font-medium' : 'text-amber-700'}`}>
-                  {couponStatus}
+            {/* Two-Column Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              {/* Left Column: Room Summary & Stay Info */}
+              <div className="md:col-span-5 space-y-4">
+                <div className="rounded-2xl overflow-hidden border border-sand-300 bg-sand-100 shadow-xs">
+                  <div className="relative">
+                    <img
+                      src={selectedRoom.Image}
+                      alt={selectedRoom.TypeName}
+                      className="w-full h-44 object-cover"
+                    />
+                    <div className="absolute top-3 left-3 bg-noir-900/80 backdrop-blur-md text-sand-100 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border border-sand-700/50">
+                      Selected Suite
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="font-serif text-lg font-medium text-noir-950 leading-tight">
+                        {selectedRoom.TypeName}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-base font-serif font-semibold text-noir-950">
+                          ₹{selectedRoom.Rate.toLocaleString()}
+                        </div>
+                        <div className="text-[10px] text-sand-500">per night</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-sand-600 mb-3">{selectedRoom.Specs}</div>
+
+                    {/* Stay & Guest details pill cards */}
+                    <div className="space-y-2 pt-3 border-t border-sand-200 text-xs">
+                      <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-sand-200/50 border border-sand-300/80">
+                        <span className="text-[10px] uppercase tracking-wider text-sand-600 font-medium">Guest</span>
+                        <span className="font-semibold text-noir-900 truncate max-w-[160px]">
+                          {currentGuest?.First_Name} {currentGuest?.Last_Name}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-sand-200/50 border border-sand-300/80">
+                        <span className="text-[10px] uppercase tracking-wider text-sand-600 font-medium">Dates</span>
+                        <span className="font-semibold text-noir-900">
+                          {checkIn} &rarr; {checkOut} ({nightsCount}N)
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-sand-200/50 border border-sand-300/80">
+                        <span className="text-[10px] uppercase tracking-wider text-sand-600 font-medium">Rooms</span>
+                        <span className="font-semibold text-noir-900">{roomsCount} Suite</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Payment Method Selector */}
-            <div className="mb-4">
-              <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1.5">
-                Payment Method
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {['Credit Card', 'UPI / Bank', 'Pay at Hotel'].map((method) => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setPaymentMethod(method)}
-                    className={`py-2 px-2 rounded-xl border text-[11px] font-medium transition-all text-center flex flex-col items-center gap-1 ${
-                      paymentMethod === method
-                        ? 'border-noir-900 bg-noir-900 text-sand-50 shadow-sm'
-                        : 'border-sand-300 bg-white text-sand-800 hover:border-sand-400'
-                    }`}
-                  >
-                    <CreditCard className="w-3.5 h-3.5" />
-                    <span>{method}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Itemized Price Breakdown */}
-            <div className="space-y-1.5 text-xs border-y border-sand-200 py-3 mb-5">
-              <div className="flex justify-between text-sand-700">
-                <span>Room Charges ({nightsCount} Night{nightsCount > 1 ? 's' : ''} × {roomsCount} Room{roomsCount > 1 ? 's' : ''})</span>
-                <span className="font-semibold text-noir-900">₹{roomSubtotal.toLocaleString()}</span>
-              </div>
-              {discountPercent > 0 && (
-                <div className="flex justify-between text-emerald-700 font-medium">
-                  <span>Member Discount ({discountPercent}%)</span>
-                  <span>- ₹{discountAmount.toLocaleString()}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-sand-700">
-                <span>Luxury Hospitality GST &amp; Taxes (12%)</span>
-                <span>+ ₹{taxAmount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-noir-950 font-serif text-base pt-2 border-t border-sand-200/80 font-bold">
-                <span>Net Total Payable</span>
-                <span>₹{netPayable.toLocaleString()}</span>
-              </div>
-            </div>
-
-            {bookingError && (
-              <div className="p-3 mb-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs text-center font-medium">
-                {bookingError}
-              </div>
-            )}
-
-            {bookingSuccess ? (
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs text-center font-medium flex items-center justify-center gap-2">
-                <Check className="w-4 h-4" /> Reservation Confirmed &amp; Payment Recorded! Invoice generated.
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsBookModalOpen(false)}
-                  disabled={isProcessingBooking}
-                  className="flex-1 py-3 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmReservation}
-                  disabled={isProcessingBooking}
-                  className="flex-1 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isProcessingBooking ? (
-                    <span>Processing Payment...</span>
-                  ) : (
-                    <>
-                      <Receipt className="w-3.5 h-3.5" />
-                      <span>Pay &amp; Confirm (₹{netPayable.toLocaleString()})</span>
-                    </>
+              {/* Right Column: Payment & Folio Breakdown */}
+              <div className="md:col-span-7 flex flex-col justify-between h-full space-y-4">
+                {/* Promo Coupon Bar */}
+                <div className="p-3.5 bg-sand-100/70 rounded-2xl border border-sand-300">
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1.5">
+                    Promotional or Voucher Code
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="e.g. WELCOME10 or VIP20"
+                      className="flex-1 px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 uppercase tracking-wider focus:outline-none focus:border-noir-900 placeholder:normal-case placeholder:tracking-normal"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      className="px-4 py-2 bg-noir-900 text-sand-50 hover:bg-noir-950 text-xs font-semibold rounded-xl transition-colors shadow-xs"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {couponStatus && (
+                    <div className={`text-[10px] mt-1.5 ${discountPercent > 0 ? 'text-emerald-700 font-medium' : 'text-amber-700 font-medium'}`}>
+                      {couponStatus}
+                    </div>
                   )}
-                </button>
+                </div>
+
+                {/* Payment Method Selector */}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-2">
+                    Payment Method
+                  </label>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {['Credit Card', 'UPI / Bank', 'Pay at Hotel'].map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setPaymentMethod(method)}
+                        className={`py-2.5 px-3 rounded-xl border text-xs font-medium transition-all text-center flex flex-col items-center justify-center gap-1.5 ${
+                          paymentMethod === method
+                            ? 'border-noir-900 bg-noir-900 text-sand-50 shadow-md ring-2 ring-noir-900/20'
+                            : 'border-sand-300 bg-white text-sand-800 hover:border-sand-400 hover:bg-sand-50'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        <span className="text-[11px] font-semibold">{method}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Itemized Price Breakdown */}
+                <div className="p-4 bg-sand-100/60 rounded-2xl border border-sand-300 space-y-2 text-xs">
+                  <div className="flex justify-between text-sand-700">
+                    <span>Room Charges ({nightsCount} Night{nightsCount > 1 ? 's' : ''} × {roomsCount} Room{roomsCount > 1 ? 's' : ''})</span>
+                    <span className="font-semibold text-noir-900">₹{roomSubtotal.toLocaleString()}</span>
+                  </div>
+                  {discountPercent > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Member Discount ({discountPercent}%)</span>
+                      <span>- ₹{discountAmount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sand-700">
+                    <span>Luxury Hospitality GST &amp; Taxes (12%)</span>
+                    <span>+ ₹{taxAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline text-noir-950 font-serif pt-2.5 border-t border-sand-300">
+                    <div>
+                      <span className="text-base font-bold block">Net Total Payable</span>
+                      <span className="text-[10px] font-sans text-sand-500 font-normal">All taxes &amp; service charges included</span>
+                    </div>
+                    <span className="text-xl font-bold tracking-tight">₹{netPayable.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {bookingError && (
+                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs text-center font-medium">
+                    {bookingError}
+                  </div>
+                )}
+
+                {bookingSuccess ? (
+                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs text-center font-medium flex items-center justify-center gap-2">
+                    <Check className="w-4 h-4" /> Reservation Confirmed &amp; Payment Recorded! Invoice generated.
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleCloseBookModal}
+                      disabled={isProcessingBooking}
+                      className="w-1/3 py-3 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmReservation}
+                      disabled={isProcessingBooking}
+                      className="w-2/3 py-3 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isProcessingBooking ? (
+                        <span>Processing Payment...</span>
+                      ) : (
+                        <>
+                          <Receipt className="w-3.5 h-3.5" />
+                          <span>Pay &amp; Confirm (₹{netPayable.toLocaleString()})</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
