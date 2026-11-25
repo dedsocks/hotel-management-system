@@ -268,3 +268,12 @@
   z-index: 9999;
   transition: transform 0.15s ease-out;
 }
+
+@media print {
+  aside, nav, .print\:hidden {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+}

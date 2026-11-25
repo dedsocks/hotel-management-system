@@ -21,6 +21,21 @@ import {
   bookSpaAppointmentApi,
   updateSpaAppointmentStatusApi
 } from '../api/hotelApi';
+import { INITIAL_RESERVATIONS, INITIAL_STAFF } from '../data/mockData';
+import CustomSelect from './CustomSelect';
+
+const FALLBACK_SPA_SERVICES = [
+  { Service_ID: 'spa-01', Service_Name: 'Ayurvedic Royal Abhyanga', Duration_Minutes: 90, Price: 8500 },
+  { Service_ID: 'spa-02', Service_Name: 'Himalayan Hot Stone Therapy', Duration_Minutes: 75, Price: 7200 },
+  { Service_ID: 'spa-03', Service_Name: 'Aromatherapy Deep Tissue', Duration_Minutes: 60, Price: 5800 },
+];
+
+const FALLBACK_THERAPISTS = INITIAL_STAFF.filter((s) => s.Role === 'Therapist').map((t) => ({
+  Therapist_ID: t.Staff_ID,
+  First_Name: t.First_Name,
+  Last_Name: t.Last_Name,
+  Specialty: t.Specialty || 'Wellness Specialist'
+}));
 
 export default function PosSpaServicesView() {
   const [appointments, setAppointments] = useState([]);
@@ -44,25 +59,42 @@ export default function PosSpaServicesView() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [appts, srvs, thers, resvs] = await Promise.all([
+      const [apptsRes, srvsRes, thersRes, resvsRes] = await Promise.allSettled([
         fetchSpaAppointmentsApi(),
         fetchSpaServicesApi(),
         fetchTherapistsApi(),
         fetchReservationsApi()
       ]);
 
-      if (Array.isArray(appts)) setAppointments(appts);
-      if (Array.isArray(srvs)) {
-        setServices(srvs);
-        if (srvs.length > 0 && !selectedServiceId) setSelectedServiceId(srvs[0].Service_ID);
+      if (apptsRes.status === 'fulfilled' && Array.isArray(apptsRes.value)) {
+        setAppointments(apptsRes.value);
       }
-      if (Array.isArray(thers)) {
-        setTherapists(thers);
-        if (thers.length > 0 && !selectedTherapistId) setSelectedTherapistId(thers[0].Therapist_ID);
+
+      const loadedServices =
+        srvsRes.status === 'fulfilled' && Array.isArray(srvsRes.value) && srvsRes.value.length > 0
+          ? srvsRes.value
+          : FALLBACK_SPA_SERVICES;
+      setServices(loadedServices);
+      if (loadedServices.length > 0 && !selectedServiceId) {
+        setSelectedServiceId(loadedServices[0].Service_ID);
       }
-      if (Array.isArray(resvs)) {
-        setReservations(resvs);
-        if (resvs.length > 0 && !selectedReservationId) setSelectedReservationId(resvs[0].Reservation_ID);
+
+      const loadedTherapists =
+        thersRes.status === 'fulfilled' && Array.isArray(thersRes.value) && thersRes.value.length > 0
+          ? thersRes.value
+          : FALLBACK_THERAPISTS;
+      setTherapists(loadedTherapists);
+      if (loadedTherapists.length > 0 && !selectedTherapistId) {
+        setSelectedTherapistId(loadedTherapists[0].Therapist_ID);
+      }
+
+      const loadedReservations =
+        resvsRes.status === 'fulfilled' && Array.isArray(resvsRes.value) && resvsRes.value.length > 0
+          ? resvsRes.value
+          : INITIAL_RESERVATIONS;
+      setReservations(loadedReservations);
+      if (loadedReservations.length > 0 && !selectedReservationId) {
+        setSelectedReservationId(loadedReservations[0].Reservation_ID);
       }
     } catch (err) {
       console.error('Failed to load spa data:', err);
@@ -331,59 +363,38 @@ export default function PosSpaServicesView() {
             <p className="text-xs text-sand-600 mb-6">Select guest room folio, treatment, and specialist.</p>
 
             <form onSubmit={handleCreateAppointment} className="space-y-4">
-              <div>
-                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
-                  Guest Stay / Room
-                </label>
-                <select
-                  value={selectedReservationId}
-                  onChange={(e) => setSelectedReservationId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 focus:outline-none focus:border-noir-900"
-                  required
-                >
-                  {reservations.map((r) => (
-                    <option key={r.Reservation_ID} value={r.Reservation_ID}>
-                      {r.Guest_Name} (Room #{r.Room_Number} • Res {r.Reservation_ID})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect
+                label="Guest Stay / Room"
+                value={selectedReservationId}
+                onChange={setSelectedReservationId}
+                options={reservations.map((r) => ({
+                  value: r.Reservation_ID,
+                  label: `${r.Guest_Name} (Room #${r.Room_Number} • Res ${r.Reservation_ID})`,
+                  icon: <BedDouble className="w-3.5 h-3.5" />
+                }))}
+              />
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
-                  Treatment Service
-                </label>
-                <select
-                  value={selectedServiceId}
-                  onChange={(e) => setSelectedServiceId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 focus:outline-none focus:border-noir-900"
-                  required
-                >
-                  {services.map((s) => (
-                    <option key={s.Service_ID} value={s.Service_ID}>
-                      {s.Service_Name} — {s.Duration_Minutes} mins (₹{Number(s.Price).toLocaleString()})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect
+                label="Treatment Service"
+                value={selectedServiceId}
+                onChange={setSelectedServiceId}
+                options={services.map((s) => ({
+                  value: s.Service_ID,
+                  label: `${s.Service_Name} — ${s.Duration_Minutes} mins (₹${Number(s.Price).toLocaleString()})`,
+                  icon: <Sparkles className="w-3.5 h-3.5" />
+                }))}
+              />
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">
-                  Assigned Therapist
-                </label>
-                <select
-                  value={selectedTherapistId}
-                  onChange={(e) => setSelectedTherapistId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900 focus:outline-none focus:border-noir-900"
-                  required
-                >
-                  {therapists.map((t) => (
-                    <option key={t.Therapist_ID} value={t.Therapist_ID}>
-                      {t.First_Name} {t.Last_Name} ({t.Specialty})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect
+                label="Assigned Therapist"
+                value={selectedTherapistId}
+                onChange={setSelectedTherapistId}
+                options={therapists.map((t) => ({
+                  value: t.Therapist_ID,
+                  label: `${t.First_Name} ${t.Last_Name} (${t.Specialty})`,
+                  icon: <User className="w-3.5 h-3.5" />
+                }))}
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

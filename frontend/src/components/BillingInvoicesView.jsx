@@ -311,11 +311,18 @@ export default function BillingInvoicesView() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 print:hidden">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex-1 py-2.5 border border-sand-300 bg-white hover:bg-sand-100 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+              >
+                Print / Export PDF
+              </button>
               <button
                 type="button"
                 onClick={() => setSelectedInvoice(null)}
-                className="w-full py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm"
+                className="flex-1 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm"
               >
                 Close Folio
               </button>

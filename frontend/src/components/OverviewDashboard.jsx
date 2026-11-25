@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
   Building, 
   CalendarCheck2, 
@@ -24,16 +25,51 @@ import {
   fetchRoomsApi, 
   fetchReservationsApi, 
   fetchHousekeepingTasksApi, 
-  fetchAnalyticsApi 
+  fetchAnalyticsApi,
+  fetchGuestsApi,
+  createReservationApi
 } from '../api/hotelApi';
 
 export default function OverviewDashboard({ onNavigateTab }) {
+  const { currentStaff } = useAuth();
+  const isManager = currentStaff?.Role === 'Manager';
   const [selectedBranchId, setSelectedBranchId] = useState('b-01');
   const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
   const [rooms, setRooms] = useState(INITIAL_ROOMS);
   const [tasks, setTasks] = useState(INITIAL_HOUSEKEEPING_TASKS);
   const [analytics, setAnalytics] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [guests, setGuests] = useState(INITIAL_GUESTS);
+  const [isNewResModalOpen, setIsNewResModalOpen] = useState(false);
+  const [walkInGuestId, setWalkInGuestId] = useState(INITIAL_GUESTS[0]?.Guest_ID || '');
+  const [walkInRoomId, setWalkInRoomId] = useState(INITIAL_ROOMS[0]?.Room_ID || '');
+  const [walkInCheckIn, setWalkInCheckIn] = useState(new Date().toISOString().split('T')[0]);
+  const [walkInCheckOut, setWalkInCheckOut] = useState(new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0]);
+  const [walkInPayment, setWalkInPayment] = useState('Credit Card');
+  const [isCreatingWalkIn, setIsCreatingWalkIn] = useState(false);
+
+  const handleWalkInSubmit = async (e) => {
+    e.preventDefault();
+    setIsCreatingWalkIn(true);
+    try {
+      const res = await createReservationApi({
+        guestId: walkInGuestId,
+        roomId: walkInRoomId,
+        checkInDate: walkInCheckIn,
+        checkOutDate: walkInCheckOut,
+        paymentMethod: walkInPayment
+      });
+      if (res?.success) {
+        setIsNewResModalOpen(false);
+        const updatedResvs = await fetchReservationsApi();
+        if (Array.isArray(updatedResvs)) setReservations(updatedResvs);
+      }
+    } catch (err) {
+      console.error('Walk-in booking failed:', err);
+    } finally {
+      setIsCreatingWalkIn(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -45,7 +81,21 @@ export default function OverviewDashboard({ onNavigateTab }) {
           fetchAnalyticsApi()
         ]);
         if (rms.status === 'fulfilled' && Array.isArray(rms.value) && rms.value.length > 0) {
-          setRooms(rms.value);
+          const enriched = rms.value.map((r) => {
+            const match = INITIAL_ROOMS.find(
+              (m) =>
+                m.Room_ID === r.Room_ID ||
+                String(m.Room_Number) === String(r.Room_Number) ||
+                m.RoomType_ID === r.RoomType_ID ||
+                m.TypeName.toLowerCase() === (r.TypeName || '').trim().toLowerCase()
+            );
+            return {
+              ...r,
+              Image: r.Image || match?.Image || 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=800',
+              Specs: r.Specs || match?.Specs || `${r.Base_Capacity || 2} Guests • Luxury Suite`
+            };
+          });
+          setRooms(enriched);
         }
         if (resvs.status === 'fulfilled' && Array.isArray(resvs.value) && resvs.value.length > 0) {
           setReservations(resvs.value);
@@ -61,21 +111,41 @@ export default function OverviewDashboard({ onNavigateTab }) {
       }
     }
     loadData();
+    const handleFocus = () => loadData();
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(loadData, 10000);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const currentBranch = INITIAL_BRANCHES.find(b => b.Branch_ID === selectedBranchId) || INITIAL_BRANCHES[0];
 
+  const getLiveRoomStatus = (room) => {
+    const activeRes = reservations.find(
+      (res) =>
+        (res.Room_ID === room.Room_ID || String(res.Room_Number) === String(room.Room_Number)) &&
+        (res.Booking_Status === 'Checked-In' || res.Booking_Status === 'Confirmed')
+    );
+    if (activeRes?.Booking_Status === 'Checked-In') return 'Occupied';
+    if (activeRes?.Booking_Status === 'Confirmed') return 'Reserved';
+    return room.Status;
+  };
+
   // Quick Stats
-  const occupiedCount = rooms.filter(r => r.Status === 'Occupied').length;
-  const occupancyRate = Math.round((occupiedCount / rooms.length) * 100);
+  const occupiedCount = rooms.filter(r => getLiveRoomStatus(r) === 'Occupied').length;
+  const occupancyRate = rooms.length > 0 ? Math.round((occupiedCount / rooms.length) * 100) : 0;
   const cleanRooms = rooms.filter(r => r.Housekeeping_Status === 'Clean' || r.Housekeeping_Status === 'Inspected').length;
   const pendingTasks = tasks.filter(t => t.Status !== 'Completed').length;
 
-  const filteredReservations = reservations.filter(r => 
-    r.Guest_Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.Room_Number.includes(searchQuery) ||
-    r.Reservation_ID.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredReservations = reservations
+    .filter(r => r.Booking_Status === 'Checked-In' || r.Booking_Status === 'Confirmed')
+    .filter(r => 
+      (r.Guest_Name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(r.Room_Number || '').includes(searchQuery) ||
+      (r.Reservation_ID || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -115,7 +185,7 @@ export default function OverviewDashboard({ onNavigateTab }) {
             </div>
 
             <button 
-              onClick={() => onNavigateTab('reservations')}
+              onClick={() => setIsNewResModalOpen(true)}
               className="self-start md:self-auto px-4 py-2.5 bg-sand-50 hover:bg-white text-noir-950 rounded-xl text-xs font-semibold tracking-wider uppercase flex items-center gap-2 transition-all shadow-lg active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 text-noir-900" /> New Reservation
@@ -134,7 +204,9 @@ export default function OverviewDashboard({ onNavigateTab }) {
           <div className="text-3xl font-serif text-noir-900 font-normal">{occupancyRate}%</div>
           <div className="text-xs text-sand-600 mt-2 flex items-center justify-between">
             <span>{occupiedCount} of {rooms.length} suites occupied</span>
-            <span className="text-emerald-700 font-medium">+8% vs last week</span>
+            <span className={`font-medium ${occupancyRate > 0 ? 'text-emerald-700' : 'text-sand-500'}`}>
+              {occupancyRate > 0 ? 'Active occupancy' : 'No active stays'}
+            </span>
           </div>
         </div>
 
@@ -145,8 +217,11 @@ export default function OverviewDashboard({ onNavigateTab }) {
           </div>
           <div className="text-3xl font-serif text-noir-900 font-normal">{reservations.length}</div>
           <div className="text-xs text-sand-600 mt-2 flex items-center justify-between">
-            <span>2 checked-in, 1 scheduled</span>
-            <span className="text-sand-700 font-medium">100% VIP profile</span>
+            <span>
+              {reservations.filter(r => r.Booking_Status === 'Checked-In').length} checked-in,{' '}
+              {reservations.filter(r => r.Booking_Status === 'Confirmed').length} confirmed
+            </span>
+            <span className="text-sand-700 font-medium">Live folio sync</span>
           </div>
         </div>
 
@@ -158,27 +233,34 @@ export default function OverviewDashboard({ onNavigateTab }) {
           <div className="text-3xl font-serif text-noir-900 font-normal">{cleanRooms} / {rooms.length}</div>
           <div className="text-xs text-sand-600 mt-2 flex items-center justify-between">
             <span>{pendingTasks} active tasks assigned</span>
-            <span className="text-amber-700 font-medium">1 deep turn</span>
+            <span className="text-amber-700 font-medium">
+              {rooms.length - cleanRooms} pending turn
+            </span>
           </div>
         </div>
 
         <div className="bg-sand-50 border border-sand-300/80 p-5 rounded-xl shadow-sm hover:shadow transition-shadow">
           <div className="flex items-center justify-between text-sand-600 mb-2">
-            <span className="text-xs font-semibold tracking-wider uppercase">Daily On-Site Revenue</span>
+            <span className="text-xs font-semibold tracking-wider uppercase">Total Folio Revenue</span>
             <CreditCard className="w-4 h-4 text-accent-gold" />
           </div>
-          <div className="text-3xl font-serif text-noir-900 font-normal">₹8,45,000</div>
+          <div className="text-3xl font-serif text-noir-900 font-normal">
+            ₹{Number(
+              analytics?.totalRevenue ??
+                reservations.reduce((sum, r) => sum + Number(r.Total_Amount || r.Base_Price || 0), 0)
+            ).toLocaleString()}
+          </div>
           <div className="text-xs text-sand-600 mt-2 flex items-center justify-between">
             <span>Rooms &amp; Spa &amp; Dining</span>
-            <span className="text-emerald-700 font-medium">+14% vs avg</span>
+            <span className="text-sand-700 font-medium">Live ledger</span>
           </div>
         </div>
       </div>
 
       {/* Main Grid: Active Reservations Table & Room Floor Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left 2 Cols: Live Reservations */}
-        <div className="lg:col-span-2 bg-sand-50 border border-sand-300/80 rounded-2xl p-6 shadow-sm">
+        {/* Left 2 Cols (Full width for non-Managers): Live Reservations */}
+        <div className={`${isManager ? 'lg:col-span-2' : 'lg:col-span-3'} bg-sand-50 border border-sand-300/80 rounded-2xl p-6 shadow-sm`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h2 className="text-xl font-serif text-noir-900 font-medium">Active &amp; Incoming Guests</h2>
@@ -242,8 +324,9 @@ export default function OverviewDashboard({ onNavigateTab }) {
           </div>
         </div>
 
-        {/* Right 1 Col: Room States & Housekeeping Quick View */}
-        <div className="space-y-6">
+        {/* Right 1 Col: Room States & Housekeeping Quick View (Manager Only) */}
+        {isManager && (
+          <div className="space-y-6">
           <div className="bg-sand-50 border border-sand-300/80 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-serif text-noir-900 font-medium">Suite Inventory</h3>
@@ -252,8 +335,9 @@ export default function OverviewDashboard({ onNavigateTab }) {
 
             <div className="grid grid-cols-2 gap-3">
               {rooms.map((room) => {
-                const isOccupied = room.Status === 'Occupied';
-                const isReserved = room.Status === 'Reserved';
+                const liveStatus = getLiveRoomStatus(room);
+                const isOccupied = liveStatus === 'Occupied';
+                const isReserved = liveStatus === 'Reserved';
                 
                 return (
                   <div
@@ -268,14 +352,18 @@ export default function OverviewDashboard({ onNavigateTab }) {
                   >
                     <div className="h-20 w-full relative overflow-hidden bg-sand-200">
                       <img 
-                        src={room.Image} 
+                        src={room.Image || 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=800'} 
                         alt={room.TypeName}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=800';
+                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />
                       <span className={`absolute top-1.5 right-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider ${
                         isOccupied ? 'bg-noir-900 text-sand-50' : isReserved ? 'bg-amber-600 text-white' : 'bg-sand-100/90 text-noir-900'
                       }`}>
-                        {room.Status}
+                        {liveStatus}
                       </span>
                     </div>
                     <div className="p-2.5">
@@ -291,14 +379,18 @@ export default function OverviewDashboard({ onNavigateTab }) {
               })}
             </div>
 
-            <div className="mt-5 pt-4 border-t border-sand-200 flex items-center justify-between text-[11px] text-sand-600">
+            <div className="mt-5 pt-4 border-t border-sand-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-sand-600">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded bg-noir-900 inline-block"></span>
                 <span>Occupied</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded bg-amber-200 border border-amber-300 inline-block"></span>
+                <span className="w-2.5 h-2.5 rounded bg-amber-600 inline-block"></span>
                 <span>Reserved</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded bg-sand-400 inline-block"></span>
+                <span>Maintenance</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded bg-sand-200 border border-sand-300 inline-block"></span>
@@ -335,8 +427,101 @@ export default function OverviewDashboard({ onNavigateTab }) {
               ))}
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Quick Walk-In New Reservation Modal */}
+      {isNewResModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-noir-950/70 backdrop-blur-xs">
+          <div className="w-full max-w-lg bg-sand-50 rounded-3xl border border-sand-300 shadow-2xl p-6 sm:p-8">
+            <h3 className="text-2xl font-serif text-noir-950 font-medium mb-1">Walk-In Reservation</h3>
+            <p className="text-xs text-sand-600 mb-5">Create an immediate front-desk booking and generate folio.</p>
+            <form onSubmit={handleWalkInSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">Guest</label>
+                <select
+                  value={walkInGuestId}
+                  onChange={(e) => setWalkInGuestId(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900"
+                  required
+                >
+                  {guests.map((g) => (
+                    <option key={g.Guest_ID} value={g.Guest_ID}>
+                      {g.First_Name} {g.Last_Name} ({g.Email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">Suite / Room</label>
+                <select
+                  value={walkInRoomId}
+                  onChange={(e) => setWalkInRoomId(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900"
+                  required
+                >
+                  {rooms.map((r) => (
+                    <option key={r.Room_ID} value={r.Room_ID}>
+                      Room #{r.Room_Number} — {r.TypeName || r.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">Check-In</label>
+                  <input
+                    type="date"
+                    value={walkInCheckIn}
+                    onChange={(e) => setWalkInCheckIn(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">Check-Out</label>
+                  <input
+                    type="date"
+                    value={walkInCheckOut}
+                    onChange={(e) => setWalkInCheckOut(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-sand-700 font-semibold mb-1">Payment Method</label>
+                <select
+                  value={walkInPayment}
+                  onChange={(e) => setWalkInPayment(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-sand-300 rounded-xl text-xs text-noir-900"
+                >
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="UPI / Bank">UPI / Bank</option>
+                  <option value="Pay at Hotel">Pay at Hotel</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-3 border-t border-sand-200">
+                <button
+                  type="button"
+                  onClick={() => setIsNewResModalOpen(false)}
+                  className="flex-1 py-2.5 border border-sand-300 text-noir-900 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-sand-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingWalkIn}
+                  className="flex-1 py-2.5 bg-noir-900 hover:bg-noir-950 text-sand-50 rounded-xl text-xs font-semibold uppercase tracking-wider disabled:opacity-50"
+                >
+                  {isCreatingWalkIn ? 'Booking...' : 'Confirm Walk-In'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

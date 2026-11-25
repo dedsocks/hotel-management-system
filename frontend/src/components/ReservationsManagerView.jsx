@@ -47,6 +47,13 @@ export default function ReservationsManagerView() {
 
   useEffect(() => {
     loadReservations();
+    const handleFocus = () => loadReservations();
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(loadReservations, 10000);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleCheckIn = async (reservationId) => {
@@ -91,15 +98,15 @@ export default function ReservationsManagerView() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Confirmed':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">Confirmed</span>;
+        return <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">Confirmed</span>;
       case 'Checked-In':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Checked-In</span>;
+        return <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Checked-In</span>;
       case 'Checked-Out':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sand-200 text-noir-850 border border-sand-300">Checked-Out</span>;
+        return <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sand-200 text-noir-850 border border-sand-300">Checked-Out</span>;
       case 'Cancelled':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">Cancelled</span>;
+        return <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">Cancelled</span>;
       default:
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sand-100 text-sand-800 border border-sand-300">{status}</span>;
+        return <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sand-100 text-sand-800 border border-sand-300">{status}</span>;
     }
   };
 
