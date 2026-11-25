@@ -130,7 +130,7 @@ async function seedDatabase() {
     await connection.query(`
       INSERT INTO MenuItem (Item_ID, Name, Description, Category, Price) VALUES
       ('mi-01', 'Scottish Highland Smoked Salmon', 'Traditional cold-smoked salmon with dill cream', 'Starters', 2200.00),
-      ('mi-02', 'Dry-Aged Angus Ribeye Steak (300g)', 'Prime ribeye served with roasted bone marrow sauce', 'Mains', 5400.00),
+      ('mi-02', 'Herb-Roasted Heritage Turkey Roulade', 'Slow-roasted turkey breast with cranberry-port reduction and truffle jus', 'Mains', 4600.00),
       ('mi-03', 'Wild Truffle & Porcini Risotto', 'Acquerello rice with fresh black truffle shavings', 'Mains', 3800.00),
       ('mi-04', 'Dom Pérignon Vintage 2013', 'Champagne prestige cuvée bottle', 'Beverages', 28000.00);
     `);

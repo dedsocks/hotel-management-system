@@ -9,6 +9,8 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const housekeepingRoutes = require('./routes/housekeepingRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const spaRoutes = require('./routes/spaRoutes');
+const couponRoutes = require('./routes/couponRoutes');
+const diningRoutes = require('./routes/diningRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +36,8 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/housekeeping', housekeepingRoutes);
 app.use('/api/operations', staffRoutes);
 app.use('/api/spa', spaRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/dining', diningRoutes);
 
 // Fallback error handler
 app.use((err, req, res, next) => {
